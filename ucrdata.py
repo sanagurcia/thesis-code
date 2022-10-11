@@ -35,26 +35,26 @@ def get_sequences(n: int, dataset: str, k: int) -> np.ndarray:
     return Y, classes
     
 
-def get_class_sequences(n: int, dataset: str, k: int) -> np.ndarray:
-    """Return array of n sequences of same class from dataset
+def get_class_sequences(n_seqs: int, dataset: str, k_classes: int) -> np.ndarray:
+    """Return array of n same-class-sequences from dataset
 
     Args:
-        n (int): no. of sequences
+        n_seqs (int): no. of sequences
         dataset (str): absolute path to dataset
-        k (int): no. of classes in dataset
+        k_classes (int): no. of classes in dataset
 
     Returns:
         np.ndarray: array of same-class-sequences arranged as rows
     """
     A = np.genfromtxt(dataset)          # read all data into ndarray
-    m = A[0].size - 1                   # get sequence length
-    S = np.zeros((n, m))                # init returned array S
+    seq_length = A[0].size - 1                   # get sequence length
+    S = np.zeros((n_seqs, seq_length))                # init returned array S
 
-    n_class = np.random.randint(1, k)   # choose random class
-    
+    n_class = np.random.randint(1, k_classes)   # choose random class
+       
     i = 0
     j = 0
-    while i < n:                        # add n class-sequences to S
+    while i < n_seqs and j < A.shape[0]:     # either n seqs found or all seqs iterated                  
         seq = A[j]
         if int(seq[0]) == n_class:      # if sequences class member, add to S
             S[i] = seq[1:]
@@ -66,5 +66,5 @@ def get_class_sequences(n: int, dataset: str, k: int) -> np.ndarray:
 
 urc_archive_path = os.path.join(Path(os.getcwd()).parent, 'data/UCRArchive_2018/')
 dataset_path = os.path.join(urc_archive_path, 'Adiac/Adiac_TEST.tsv')
-data = get_class_sequences(5, dataset_path, 37)
+data = get_class_sequences(20, dataset_path, 37)
 print(data)
