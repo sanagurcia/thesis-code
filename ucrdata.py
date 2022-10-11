@@ -1,6 +1,6 @@
-import numpy as np
 import os
 from pathlib import Path
+import numpy as np
 
 # UCR Datasets: each line in a file contains a time series as list of CSVs
 #  first entry of each sequences signifies target class (for clustering)
@@ -35,27 +35,36 @@ def get_sequences(n: int, dataset: str, k: int) -> np.ndarray:
     return Y, classes
     
 
-def get_class_sequences(n: int, dataset_path: str, k: int) -> np.ndarray:
+def get_class_sequences(n: int, dataset: str, k: int) -> np.ndarray:
     """Return array of n sequences of same class from dataset
 
     Args:
         n (int): no. of sequences
-        dataset_path (str): <dir>/<file>
+        dataset (str): absolute path to dataset
         k (int): no. of classes in dataset
 
     Returns:
-        np.ndarray: array of sequences arranged as rows
+        np.ndarray: array of same-class-sequences arranged as rows
     """
-    A = np.genfromtxt(dataset_path)
-    S = np.zeros((A.shape[0], A.shape[1] - 1))
-    print(A.shape[1] - 1)
-    # for i in range(A.shape[0]):
-        
+    A = np.genfromtxt(dataset)          # read all data into ndarray
+    m = A[0].size - 1                   # get sequence length
+    S = np.zeros((n, m))                # init returned array S
 
-    return A[:,1:]
+    n_class = np.random.randint(1, k)   # choose random class
+    
+    i = 0
+    j = 0
+    while i < n:                        # add n class-sequences to S
+        seq = A[j]
+        if int(seq[0]) == n_class:      # if sequences class member, add to S
+            S[i] = seq[1:]
+            i += 1
+        j += 1
+
+    return S
 
 
 urc_archive_path = os.path.join(Path(os.getcwd()).parent, 'data/UCRArchive_2018/')
 dataset_path = os.path.join(urc_archive_path, 'Adiac/Adiac_TEST.tsv')
-data = get_class_sequences(10, dataset_path, 37)
+data = get_class_sequences(5, dataset_path, 37)
 print(data)
