@@ -1,4 +1,6 @@
 import numpy as np
+import os
+from pathlib import Path
 
 # UCR Datasets: each line in a file contains a time series as list of CSVs
 #  first entry of each sequences signifies target class (for clustering)
@@ -8,7 +10,6 @@ import numpy as np
 # @param dataset: UCR/<subpath>
 # @param k: number of classes in set
 def get_sequences(n: int, dataset: str, k: int) -> np.ndarray:
-
     # peek into file to figure out sequence length
     with open('UCR/' + dataset) as f:
         line = f.readline()
@@ -34,34 +35,27 @@ def get_sequences(n: int, dataset: str, k: int) -> np.ndarray:
     return Y, classes
     
 
-# GET N SEQUENCES FROM SAME CLASS
-# @param n: how many sequences
-# @param dataset: path to set
-# @param k: number of classes in dataset
-def get_class_sequences(n: int, dataset: str, k: int) -> np.ndarray:
+def get_class_sequences(n: int, dataset_path: str, k: int) -> np.ndarray:
+    """Return array of n sequences of same class from dataset
 
-    # open file & setup Y with zeros
-    with open('UCR/' + dataset) as f:
-        line = f.readline()
-        seq = np.array(line.split(','), float)
-        M = seq.size -1 		
+    Args:
+        n (int): no. of sequences
+        dataset_path (str): <dir>/<file>
+        k (int): no. of classes in dataset
 
-    words_file = open('UCR/' + dataset)
-    Y = np.zeros((n, M))
-
-    # choose random class
-    n_class = np.random.randint(1, k)
-
-    # add sequence to Y from class until all n sequences gathered
-    i = 0
-    while i < n:
-        line = words_file.readline()
-        seq = np.array(line.split(','), float)   
-        if seq[0] == n_class:
-            Y[i] = seq[1:]	   # if seq belongs to class, slice off the class and store
-            i += 1
+    Returns:
+        np.ndarray: array of sequences arranged as rows
+    """
+    A = np.genfromtxt(dataset_path)
+    S = np.zeros((A.shape[0], A.shape[1] - 1))
+    print(A.shape[1] - 1)
+    # for i in range(A.shape[0]):
         
-    return Y   
-   
-   
-   
+
+    return A[:,1:]
+
+
+urc_archive_path = os.path.join(Path(os.getcwd()).parent, 'data/UCRArchive_2018/')
+dataset_path = os.path.join(urc_archive_path, 'Adiac/Adiac_TEST.tsv')
+data = get_class_sequences(10, dataset_path, 37)
+print(data)
