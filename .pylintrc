@@ -1,4 +1,4 @@
 [FORMAT]
 
 # Allow following single-letter variables
-good-names=x,n,i,j,k
+good-names=x,n,i,j,k,A,S
