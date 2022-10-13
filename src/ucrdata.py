@@ -1,4 +1,5 @@
 import os
+import re
 from pathlib import Path
 import numpy as np
 
@@ -6,33 +7,34 @@ import numpy as np
 #  first entry of each sequences signifies target class (for clustering)
 
 # GET N SEQUENCES FROM ALL CLASSES, AND CLASS INFORMATION
+# NECESSARY FOR CLUSTERING
 # @param n: number of wanted sequences in set
 # @param dataset: UCR/<subpath>
 # @param k: number of classes in set
-def get_sequences(n: int, dataset: str, k: int) -> np.ndarray:
-    # peek into file to figure out sequence length
-    with open("UCR/" + dataset) as f:
-        line = f.readline()
-        seq = np.array(line.split(","), float)
-        M = seq.size - 1  # first entry is the class information
+# def get_sequences(n: int, dataset: str, k: int) -> np.ndarray:
+#     # peek into file to figure out sequence length
+#     with open("UCR/" + dataset) as f:
+#         line = f.readline()
+#         seq = np.array(line.split(","), float)
+#         M = seq.size - 1  # first entry is the class information
 
-    words_file = open("UCR/" + dataset)
+#     words_file = open("UCR/" + dataset)
 
-    # initialize target array (rows=number of sequences, columns=points per sequence)
-    Y = np.zeros((n, M))
-    classes = [[] for i in range(k)]  # create list of k lists for each class
+#     # initialize target array (rows=number of sequences, columns=points per sequence)
+#     Y = np.zeros((n, M))
+#     classes = [[] for i in range(k)]  # create list of k lists for each class
 
-    for j in range(n):
-        line = words_file.readline()  # read in one sequence
-        seq = np.array(
-            line.split(","), float
-        )  # transform comma separated string into np array
-        Y[j] = seq[1:]
+#     for j in range(n):
+#         line = words_file.readline()  # read in one sequence
+#         seq = np.array(
+#             line.split(","), float
+#         )  # transform comma separated string into np array
+#         Y[j] = seq[1:]
 
-        k = int(seq[0]) - 1
-        classes[k].append(j)  # append S_j to corresponding class list
+#         k = int(seq[0]) - 1
+#         classes[k].append(j)  # append S_j to corresponding class list
 
-    return Y, classes
+#     return Y, classes
 
 
 def get_class_sequences(n_seqs: int, dataset: str, k_classes: int) -> np.ndarray:
@@ -76,3 +78,25 @@ def get_dataset_path(name: str) -> str:
     data_relative_path = f"{name}/{name}_TEST.tsv"
     urc_archive_path = os.path.join(Path(os.getcwd()).parent, "data/UCRArchive_2018/")
     return os.path.join(urc_archive_path, data_relative_path)
+
+
+def get_dataset_no_classes(name: str) -> int:
+    """Get number of classes in dataset
+
+    Args:
+        name (str): dataset dir name
+
+    Returns:
+        int: no of classes
+    """
+    readme_path = f"{name}/README.md"
+    urc_archive_path = os.path.join(Path(os.getcwd()).parent, "data/UCRArchive_2018/")
+    absolute_path = os.path.join(urc_archive_path, readme_path)
+    readme = open(absolute_path)
+
+    # Find line with number of classes
+    while 1:
+        line = readme.readline()
+        if re.match("^Number of classses.*", line):
+            res = re.findall("[0-9]+", line)
+            return int(res[0])

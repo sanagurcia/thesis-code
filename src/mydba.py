@@ -1,4 +1,4 @@
-'''
+"""
 SAD's implementation of the DTW Barycenter Algorithm
 Following pseudocode from Petitjean et al. (2011)
 
@@ -11,10 +11,11 @@ Each iteration consists of two steps:
 Hence, DTW serves to make explicit which coordinates of each sequence in S
 are relevant for a particular coordinate in the mean.
 Each coordinate of mean is merely the everyday average of all its aligned coordinates in S.
-'''
+"""
 
 import numpy as np
 from mydtw import ddtw as DTW
+
 # from mydtw import dtw as DTW
 
 
@@ -28,23 +29,23 @@ def dba_mean(S: np.ndarray, n: int) -> np.ndarray:
     # print(f'DBA Iteration 1 of {n}...')
     mean = perform_dba_iteration(np.copy(S[0]), S)
 
-    for i in range(n-1):
+    for i in range(n - 1):
         # print(f'DBA Iteration {i+2} of {n}...')
         mean = perform_dba_iteration(mean, S)
 
     # print('DBA Done.')
-        
+
     return mean
-        
+
 
 # Calculate Associations Table
 # @param c: initial average sequence
 # @param S: set of sequences to be averaged
 # @return array: each entry is a set of associate-coordinates from sequences in S
-#	for each coordinate c_i of average
+# 	for each coordinate c_i of average
 def calculate_associations(c: np.ndarray, S: np.ndarray) -> np.ndarray:
 
-    A = np.zeros(c.size, dtype=object)	# associatons table
+    A = np.zeros(c.size, dtype=object)  # associatons table
 
     # for each sequence s, get associations based on optimal warping path
     for i in range(S.shape[0]):
@@ -53,11 +54,11 @@ def calculate_associations(c: np.ndarray, S: np.ndarray) -> np.ndarray:
 
         # iterate thru path, adding coordinate from s to corresponding list for c_i
         for j in range(path.shape[0]):
-            a, b = path[j]	# indices for c & s at this point in path
+            a, b = path[j]  # indices for c & s at this point in path
             if A[a] == 0:
-            	A[a] = {s[b]}
+                A[a] = {s[b]}
             else:
-            	A[a] = A[a].union({s[b]})  # add s_b value to associations set for c_a
+                A[a] = A[a].union({s[b]})  # add s_b value to associations set for c_a
 
     return A
 
@@ -69,18 +70,19 @@ def calculate_associations(c: np.ndarray, S: np.ndarray) -> np.ndarray:
 def calculate_average_update(c: np.ndarray, A: np.ndarray) -> np.ndarray:
 
     for i in range(c.size):
-        c[i] = sum(A[i])/len(A[i])	# barycenter is just a fancy word for average
+        c[i] = sum(A[i]) / len(A[i])  # barycenter is just a fancy word for average
 
     return c
 
 
 # Given a current average sequence & the set of all sequences, do one DBA iteration
-def perform_dba_iteration(current_average: np.ndarray, sequences: np.ndarray) -> np.ndarray:
+def perform_dba_iteration(
+    current_average: np.ndarray, sequences: np.ndarray
+) -> np.ndarray:
 
     associations_table = calculate_associations(current_average, sequences)
-    updated_average_sequence = calculate_average_update(current_average, associations_table)
-        
+    updated_average_sequence = calculate_average_update(
+        current_average, associations_table
+    )
+
     return updated_average_sequence
-
-
-
