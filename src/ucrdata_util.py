@@ -1,3 +1,13 @@
+"""UCR Data Util
+
+This module reads in sequences from the UCR Dataset and transforms packages them into an ndarray.
+Expects to be run from project rootdir, which is a sibling of data/UCRArchive_2018.
+
+The two following functions are helpful:
+
+    * get_class_sequences - returns ndarray of same-class-sequences from given dataset
+"""
+
 import os
 import re
 from pathlib import Path
@@ -37,18 +47,21 @@ import numpy as np
 #     return Y, classes
 
 
-def get_class_sequences(n_seqs: int, dataset: str, k_classes: int) -> np.ndarray:
+def get_class_sequences(n_seqs: int, dataset: str) -> np.ndarray:
     """Return array of n same-class-sequences from dataset
 
     Args:
         n_seqs (int): no. of sequences
-        dataset (str): absolute path to dataset
-        k_classes (int): no. of classes in dataset
+        dataset (str): dataset dir name
 
     Returns:
         np.ndarray: array of same-class-sequences arranged as rows
     """
-    A = np.genfromtxt(dataset)  # read all data into ndarray
+
+    dataset_path = get_dataset_path(dataset)
+    k_classes = get_dataset_no_classes(dataset)
+
+    A = np.genfromtxt(dataset_path)  # read all data into ndarray
     seq_length = A[0].size - 1  # get sequence length
     S = np.zeros((n_seqs, seq_length))  # init returned array S
 

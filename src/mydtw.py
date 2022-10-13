@@ -6,7 +6,7 @@ import numpy as np
 
 
 # Calculate regular DTW
-def dtw(a: np.ndarray, b: np.ndarray) -> (float, [np.ndarray]):
+def dtw(a: np.ndarray, b: np.ndarray) -> tuple[float, [np.ndarray]]:
 
     D = compute_dtw_array(a, b, euclidean_delta)
     return dtw_cost_path(D)
