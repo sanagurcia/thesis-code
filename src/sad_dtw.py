@@ -193,11 +193,9 @@ def special_min(i: int, j: int, D: np.ndarray) -> [float, (int, int)]:
     return A[m]
 
 
-def plot_alignment(
-    path: np.ndarray, a: np.ndarray, b: np.ndarray, title="DTW Point-to-Point Alignment"
-):
+def plot_alignment(path: np.ndarray, a: np.ndarray, b: np.ndarray, title="DTW Point-to-Point Alignment"):
     """Plot DTW alignemnt along warping path.
-
+             
     Args:
         path (Nx2 Array): indices of warping path
         a (np.ndarray): first sequence

@@ -2,3 +2,4 @@
 
 # Allow following single-letter variables
 good-names-rgxs=[a-zA-Z]
+max-line-length=120
