@@ -1,9 +1,9 @@
 """UCR Data Util
 
-This module reads in sequences from the UCR Dataset and transforms packages them into an ndarray.
+This script reads in sequences from the UCR Dataset and transforms packages them into an ndarray.
 Expects to be run from project rootdir, which is a sibling of data/UCRArchive_2018.
 
-The two following functions are helpful:
+Useful functions:
 
     * get_class_sequences - returns ndarray of same-class-sequences from given dataset
 """
@@ -105,7 +105,7 @@ def get_dataset_no_classes(name: str) -> int:
     readme_path = f"{name}/README.md"
     urc_archive_path = os.path.join(Path(os.getcwd()).parent, "data/UCRArchive_2018/")
     absolute_path = os.path.join(urc_archive_path, readme_path)
-    readme = open(absolute_path)
+    readme = open(absolute_path, encoding="utf-8")
 
     # Find line with number of classes
     while 1:
