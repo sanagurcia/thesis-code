@@ -26,6 +26,5 @@ def test_dba():
     old_cost = sad_dba.calculate_average_cost_to_mean(S[0], S)
     new_cost = sad_dba.calculate_average_cost_to_mean(mean, S)
 
-    print(old_cost, new_cost)
-
     assert new_cost < old_cost
+    print(f"Starting average cost: {round(old_cost, 2)}\nEnding average cost: {round(new_cost, 2)}")

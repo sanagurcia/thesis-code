@@ -30,7 +30,7 @@ def dba_mean(S: np.ndarray, n: int, verbose=False) -> np.ndarray:
     """
 
     if verbose:
-        print(f"DBA Iteration 1 of {n}...")
+        print(f"\nDBA Iteration 1 of {n}...")
 
     # simple implementation: use first sequence as initial average
     mean = perform_dba_iteration(np.copy(S[0]), S)
@@ -69,7 +69,7 @@ def calculate_associations(seq_avg: np.ndarray, S: np.ndarray) -> np.ndarray:
         np.ndarray: associations table
     """
 
-    A = np.zeros(seq_avg.size, dtype=object)  # associatons table
+    A = np.zeros(seq_avg.size, dtype=object)  # associations table
 
     # for each sequence s, get associations based on optimal warping path
     for i in range(S.shape[0]):
@@ -80,13 +80,11 @@ def calculate_associations(seq_avg: np.ndarray, S: np.ndarray) -> np.ndarray:
         for j in range(path.shape[0]):
             avg_j, s_j = path[j]  # indices for seq_avg & seq_s at this point in path
             if A[avg_j] == 0:
-                A[avg_j] = {
-                    seq_s[s_j]
-                }  # if avg_j coordinate has no associations, init set with value at s_j
+                # if avg_j coordinate has no associations, init list with value at s_j
+                A[avg_j] = [seq_s[s_j]]
             else:
-                A[avg_j] = A[avg_j].union(
-                    {seq_s[s_j]}
-                )  # add s_j value to associations set for avg_j
+                # add s_j value to associations list for avg_j
+                A[avg_j].append(seq_s[s_j])
 
     return A
 
