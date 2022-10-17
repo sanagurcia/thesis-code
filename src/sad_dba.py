@@ -30,18 +30,18 @@ def dba_mean(S: np.ndarray, n: int, verbose=False) -> np.ndarray:
     """
 
     if verbose:
-        print(f'DBA Iteration 1 of {n}...')
+        print(f"DBA Iteration 1 of {n}...")
 
     # simple implementation: use first sequence as initial average
     mean = perform_dba_iteration(np.copy(S[0]), S)
 
     for i in range(n - 1):
         if verbose:
-            print(f'DBA Iteration {i+2} of {n}...')
+            print(f"DBA Iteration {i+2} of {n}...")
         mean = perform_dba_iteration(mean, S)
 
     if verbose:
-        print('DBA Done.')
+        print("DBA Done.")
 
     return mean
 
@@ -80,9 +80,13 @@ def calculate_associations(seq_avg: np.ndarray, S: np.ndarray) -> np.ndarray:
         for j in range(path.shape[0]):
             avg_j, s_j = path[j]  # indices for seq_avg & seq_s at this point in path
             if A[avg_j] == 0:
-                A[avg_j] = {seq_s[s_j]} # if avg_j coordinate has no associations, init set with value at s_j
+                A[avg_j] = {
+                    seq_s[s_j]
+                }  # if avg_j coordinate has no associations, init set with value at s_j
             else:
-                A[avg_j] = A[avg_j].union({seq_s[s_j]})  # add s_j value to associations set for avg_j
+                A[avg_j] = A[avg_j].union(
+                    {seq_s[s_j]}
+                )  # add s_j value to associations set for avg_j
 
     return A
 
@@ -135,4 +139,4 @@ def calculate_average_cost_to_mean(current_mean: np.ndarray, sequences: np.ndarr
     for i in range(n_sequences):
         cost, _ = dtw(current_mean, sequences[i])
         total_cost += cost
-    return total_cost/n_sequences
+    return total_cost / n_sequences
