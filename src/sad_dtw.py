@@ -10,7 +10,6 @@ Useful functions:
 """
 
 import numpy as np
-import matplotlib.pyplot as plt
 
 
 def dtw(a: np.ndarray, b: np.ndarray) -> (float, np.ndarray):
@@ -192,25 +191,3 @@ def special_min(i: int, j: int, D: np.ndarray) -> [float, (int, int)]:
 
     return A[m]
 
-
-def plot_alignment(path: np.ndarray, a: np.ndarray, b: np.ndarray, title="DTW Point-to-Point Alignment"):
-    """Plot DTW alignemnt along warping path.
-             
-    Args:
-        path (Nx2 Array): indices of warping path
-        a (np.ndarray): first sequence
-        b (np.ndarray): second sequence
-        title (str, optional): title
-    """
-
-    plt.figure(figsize=(12, 5))  # set figure size very wide
-    plt.title(title)
-
-    for a_i, b_j in path:
-        x_values = [a_i, b_j]
-        y_values = [a[a_i], b[b_j] + 1]
-        plt.plot(x_values, y_values, c="C7")
-
-    # plot original curves (with displacement in second curve)
-    plt.plot(range(a.shape[0]), a, "-o", c="g")  # '-o' means show pts
-    plt.plot(range(b.shape[0]), b + 1, "-o", c="b")  # c is color, 'k' stands for black

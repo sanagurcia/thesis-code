@@ -1,4 +1,4 @@
-"""UCR Data Util
+"""Utils
 
 This script reads in sequences from the UCR Dataset and transforms packages them into an ndarray.
 Expects to be run from project rootdir, which is a sibling of data/UCRArchive_2018.
@@ -6,12 +6,14 @@ Expects to be run from project rootdir, which is a sibling of data/UCRArchive_20
 Useful functions:
 
     * get_class_sequences - returns ndarray of same-class-sequences from given dataset
+    * plot_alignment - plots DTW alignment between 2 sequences
 """
 
 import os
 import re
 from pathlib import Path
 import numpy as np
+import matplotlib.pyplot as plt
 
 # UCR Datasets: each line in a file contains a time series as list of CSVs
 #  first entry of each sequences signifies target class (for clustering)
@@ -78,9 +80,17 @@ def get_class_sequences(n_seqs: int, dataset: str) -> np.ndarray:
 
     return S
 
+def get_ucr_archive_path() -> str:
+    """Return path to UCR Archive. Execution root must be parent of code/ & /data dirs.
+
+    Returns:
+        str: Absolute path to UCR Archive
+    """
+    return os.path.join(Path(os.getcwd()).parent, "data/UCRArchive_2018/")
+
 
 def get_dataset_path(name: str) -> str:
-    """Get absolute path to dataset. Expects rootdir == thesis/code
+    """Get absolute path to dataset.
 
     Args:
         name (str): directory name
@@ -89,8 +99,7 @@ def get_dataset_path(name: str) -> str:
         str: absolute path
     """
     data_relative_path = f"{name}/{name}_TEST.tsv"
-    urc_archive_path = os.path.join(Path(os.getcwd()).parent, "data/UCRArchive_2018/")
-    return os.path.join(urc_archive_path, data_relative_path)
+    return os.path.join(get_ucr_archive_path(), data_relative_path)
 
 
 def get_dataset_no_classes(name: str) -> int:
@@ -103,8 +112,7 @@ def get_dataset_no_classes(name: str) -> int:
         int: no of classes
     """
     readme_path = f"{name}/README.md"
-    urc_archive_path = os.path.join(Path(os.getcwd()).parent, "data/UCRArchive_2018/")
-    absolute_path = os.path.join(urc_archive_path, readme_path)
+    absolute_path = os.path.join(get_ucr_archive_path(), readme_path)
     readme = open(absolute_path, encoding="utf-8")
 
     # Find line with number of classes
@@ -113,3 +121,26 @@ def get_dataset_no_classes(name: str) -> int:
         if re.match("^Number of classses.*", line):
             res = re.findall("[0-9]+", line)
             return int(res[0])
+
+
+def plot_alignment(path: np.ndarray, a: np.ndarray, b: np.ndarray, title="DTW Point-to-Point Alignment"):
+    """Plot DTW alignemnt along warping path.
+             
+    Args:
+        path (Nx2 Array): indices of warping path
+        a (np.ndarray): first sequence
+        b (np.ndarray): second sequence
+        title (str, optional): title
+    """
+
+    plt.figure(figsize=(12, 5))  # set figure size very wide
+    plt.title(title)
+
+    for a_i, b_j in path:
+        x_values = [a_i, b_j]
+        y_values = [a[a_i], b[b_j] + 1]
+        plt.plot(x_values, y_values, c="C7")
+
+    # plot original curves (with displacement in second curve)
+    plt.plot(range(a.shape[0]), a, "-o", c="g")  # '-o' means show pts
+    plt.plot(range(b.shape[0]), b + 1, "-o", c="b")  # c is color, 'k' stands for black
