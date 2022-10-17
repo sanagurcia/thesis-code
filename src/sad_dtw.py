@@ -190,4 +190,3 @@ def special_min(i: int, j: int, D: np.ndarray) -> [float, (int, int)]:
     m = np.argmin(A[:, 0])  # find entry in A with minimum cost
 
     return A[m]
-

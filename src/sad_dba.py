@@ -31,7 +31,7 @@ def dba_mean(S: np.ndarray, n: int, verbose=False) -> np.ndarray:
 
     if verbose:
         print(f'DBA Iteration 1 of {n}...')
-        
+
     # simple implementation: use first sequence as initial average
     mean = perform_dba_iteration(np.copy(S[0]), S)
 
@@ -118,3 +118,21 @@ def perform_dba_iteration(current_average: np.ndarray, sequences: np.ndarray) ->
     updated_average_sequence = calculate_average_update(current_average, associations_table)
 
     return updated_average_sequence
+
+
+def calculate_average_cost_to_mean(current_mean: np.ndarray, sequences: np.ndarray) -> float:
+    """(Sanity check purposes) Return average cost from mean to set of sequences
+
+    Args:
+        current_mean (np.ndarray)
+        sequences (np.ndarray)
+
+    Returns:
+        float: average cost
+    """
+    total_cost = 0
+    n_sequences = sequences.shape[0]
+    for i in range(n_sequences):
+        cost, _ = dtw(current_mean, sequences[i])
+        total_cost += cost
+    return total_cost/n_sequences
