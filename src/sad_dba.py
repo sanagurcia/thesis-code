@@ -14,7 +14,7 @@ Each coordinate of mean is merely the everyday average of all its aligned coordi
 """
 
 import numpy as np
-from src.sad_dtw import dtw
+from .sad_dtw import dtw
 
 
 def dba_mean(S: np.ndarray, n: int, verbose=False) -> np.ndarray:

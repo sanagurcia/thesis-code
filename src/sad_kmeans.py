@@ -1,14 +1,32 @@
-# Quick & dirty k-means implementation
+"""
+K Means with DTB Module
+"""
 
 import numpy as np
-import src.mydtw as mydtw
-import src.mydba as mydba
+from . import sad_dtw
+from . import sad_dba
 
 
-# S: sequences data
-# k: number of clusters
-# return: k clusters with lists of indices, mean sequences for each cluster
 def find_k_clusters(S: np.ndarray, k: int) -> (np.ndarray, np.ndarray):
+    """Find k clusters in set of sequences
+
+    Performs k-means algorithm:
+        initialize k random centroids
+        while centroids don't converge, perform iteration
+
+        iteration:
+            for each sequence:
+                compute distance (DTW) to each centroid
+                assign sequence to closest centroid
+            recompute centroids, using DBA
+
+    Args:
+        S (np.ndarray): set of sequences
+        k (int): no. of clusters
+
+    Returns:
+        (ndarray, ndarray): set of clusters, mean sequence for each cluster
+    """
 
     # intialize k random centroids
     indices = np.random.randint(0, S.shape[0], k)
@@ -16,11 +34,10 @@ def find_k_clusters(S: np.ndarray, k: int) -> (np.ndarray, np.ndarray):
     for i in range(indices.size):
         C[i] = S[indices[i]]
 
-    clusters, C_updated = k_means_iteration(C, S)
+    clusters, C_updated = k_means_iteration(C, S)  # perform first iteration
 
     # while centroids don't converge, perform iteration
     while not np.allclose(C, C_updated):
-
         C = np.copy(C_updated)
         clusters, C_updated = k_means_iteration(C, S)
 
@@ -44,7 +61,7 @@ def k_means_iteration(C: np.ndarray, S: np.ndarray):
         candidate_c = (-1, np.inf)  # candidate centroid: (index, cost)
 
         for i in range(N):  # for each centroid
-            cost, path = mydtw.ddtw(C[i], S[j])
+            cost, _ = sad_dtw.dtw(C[i], S[j])
 
             if cost < candidate_c[1]:
                 candidate_c = (i, cost)
@@ -60,28 +77,11 @@ def k_means_iteration(C: np.ndarray, S: np.ndarray):
         L = len(clusters[i])
         S_i = np.zeros((L, S.shape[1]))
 
-        for l, s_j in enumerate(
-            clusters[i]
-        ):  # fetch s_j from list, add sequence to cluster set
+        for l, s_j in enumerate(clusters[i]):  # fetch s_j from list, add sequence to cluster set
             S_i[l] = S[s_j]
 
         # get updated sample mean of cluster_i, (3 iterations of alg.)
-        C_updated[i] = mydba.dba_mean(S_i, 5)
+        C_updated[i] = sad_dba.dba_mean(S_i, 5)
 
     # return clusters, updated centroids
     return clusters, C_updated
-
-
-"""
-PSEUDO CODE:
-Initialize k random centroids.
-While centroids don't converge, perform iteration.
-
-Iteration:
-   for each datapoint:
-       calculate distance to each centroid (DTW distance)
-       assign sequence to nearest cluster
-
-   recompute centroid, based on new datapoints (Time-Series averaging with DBA)
-
-"""
