@@ -1,10 +1,10 @@
-"""DTW Module
+"""
+DTW Module
 
 Module for computing dynamic time warping distance between two sequences.
 Follows pseudo code from Petitjean et al (2011).
 
-Useful functions:
-
+Functions:
     * dtw: computes vanilla DTW on two sequences
     * ddtw: computes derivative-DTW on two sequences
 """

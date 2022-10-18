@@ -1,10 +1,19 @@
 """Utils
 
-This script reads in sequences from the UCR Dataset and transforms packages them into an ndarray.
+This module reads in sequences from the UCR Dataset and packages them into an ndarray.
 Expects to be run from project rootdir, which is a sibling of data/UCRArchive_2018.
 
-Useful functions:
+On UCR Dataset:
+    Contains roughly 150 separate time-series datasets, each as individual directory.
+    In each dataset directory 'UCRARchive_2018/<dataset>/':
+        * <dataset>_TRAIN.tsv
+        * <dataset>_TEST.tsv
+            - .tsv's encode one sequence per line; first field (int) indicates class
+        * README.md
+            - info on no. of sequences, sequence length, and no. classes in dataset
 
+Useful functions:
+    * get_n_sequences - returns ndarray of n sequences & class information
     * get_class_sequences - returns ndarray of same-class-sequences from given dataset
     * plot_alignment - plots DTW alignment between 2 sequences
 """
@@ -15,38 +24,35 @@ from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
 
-# UCR Datasets: each line in a file contains a time series as list of CSVs
-#  first entry of each sequences signifies target class (for clustering)
 
-# GET N SEQUENCES FROM ALL CLASSES, AND CLASS INFORMATION
-# NECESSARY FOR CLUSTERING
-# @param n: number of wanted sequences in set
-# @param dataset: UCR/<subpath>
-# @param k: number of classes in set
-# def get_sequences(n: int, dataset: str, k: int) -> np.ndarray:
-#     # peek into file to figure out sequence length
-#     with open("UCR/" + dataset) as f:
-#         line = f.readline()
-#         seq = np.array(line.split(","), float)
-#         M = seq.size - 1  # first entry is the class information
+def get_n_sequences(dataset: str, n=-1) -> (np.ndarray, [[int]]):
+    """Get n sequences from dataset and sequence class information
 
-#     words_file = open("UCR/" + dataset)
+    Args:
+        dataset (str): dataset name
+        n (int): no. required sequences, defaults to total in dataset
 
-#     # initialize target array (rows=number of sequences, columns=points per sequence)
-#     Y = np.zeros((n, M))
-#     classes = [[] for i in range(k)]  # create list of k lists for each class
+    Returns:
+        (sequences, [classes]): set of sequences, class lists with sequence indices
+    """
 
-#     for j in range(n):
-#         line = words_file.readline()  # read in one sequence
-#         seq = np.array(
-#             line.split(","), float
-#         )  # transform comma separated string into np array
-#         Y[j] = seq[1:]
+    D = np.genfromtxt(get_dataset_path(dataset))  # read raw data into A
+    k = get_dataset_no_classes(dataset)
 
-#         k = int(seq[0]) - 1
-#         classes[k].append(j)  # append S_j to corresponding class list
+    seq_len = D[0].shape[0] - 1  # seq len == len of any seq in dataset minus class info
+    n_seq = n if n > 0 else D.shape[0]  # no. of sequences as queried or default total
 
-#     return Y, classes
+    S = np.zeros((n_seq, seq_len))  # initialize target array
+    classes = [[] for i in range(k)]  # create list of k lists for each class
+
+    for i in range(n_seq):
+        raw_seq = D[i]
+        S[i] = raw_seq[1:]  # copy sequence to target array, excluding class info
+
+        c_i = int(raw_seq[0]) - 1  # get class index, (transform to zero-indexed)
+        classes[c_i].append(i)  # append s_i to corresponding class list
+
+    return S, classes
 
 
 def get_class_sequences(n_seqs: int, dataset: str) -> np.ndarray:
@@ -80,6 +86,7 @@ def get_class_sequences(n_seqs: int, dataset: str) -> np.ndarray:
 
     return S
 
+
 def get_ucr_archive_path() -> str:
     """Return path to UCR Archive. Execution root must be parent of code/ & /data dirs.
 
@@ -98,7 +105,7 @@ def get_dataset_path(name: str) -> str:
     Returns:
         str: absolute path
     """
-    data_relative_path = f"{name}/{name}_TEST.tsv"
+    data_relative_path = f"{name}/{name}_TRAIN.tsv"
     return os.path.join(get_ucr_archive_path(), data_relative_path)
 
 
@@ -123,9 +130,11 @@ def get_dataset_no_classes(name: str) -> int:
             return int(res[0])
 
 
-def plot_alignment(path: np.ndarray, a: np.ndarray, b: np.ndarray, title="DTW Point-to-Point Alignment"):
+def plot_alignment(
+    path: np.ndarray, a: np.ndarray, b: np.ndarray, title="DTW Point-to-Point Alignment"
+):
     """Plot DTW alignemnt along warping path.
-             
+
     Args:
         path (Nx2 Array): indices of warping path
         a (np.ndarray): first sequence

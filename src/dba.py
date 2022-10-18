@@ -1,6 +1,7 @@
 """
-SAD's implementation of the DTW Barycenter Algorithm
-Following pseudocode from Petitjean et al. (2011)
+DBA Module
+An implementation of the DTW Barycenter Algorithm, 
+following pseudocode from Petitjean et al. (2011)
 
 Each iteration consists of two steps:
 1. Calculate associations table:
@@ -11,10 +12,13 @@ Each iteration consists of two steps:
 Hence, DTW serves to make explicit which coordinates of each sequence in S
 are relevant for a particular coordinate in the mean.
 Each coordinate of mean is merely the everyday average of all its aligned coordinates in S.
+
+Functions:
+    * dba_mean - perform DBA on set of sequences
 """
 
 import numpy as np
-from .sad_dtw import dtw
+from .dtw import dtw
 
 
 def dba_mean(S: np.ndarray, n: int, verbose=False) -> np.ndarray:
