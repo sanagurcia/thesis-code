@@ -55,7 +55,7 @@ def get_n_sequences(dataset: str, n=-1) -> (np.ndarray, [[int]]):
     return S, classes
 
 
-def get_class_sequences(n_seqs: int, dataset: str) -> np.ndarray:
+def get_class_sequences(n_seqs: int, dataset: str, i_class=-1) -> np.ndarray:
     """Return array of n same-class-sequences from dataset
 
     Args:
@@ -73,18 +73,19 @@ def get_class_sequences(n_seqs: int, dataset: str) -> np.ndarray:
     seq_length = A[0].size - 1  # get sequence length
     S = np.zeros((n_seqs, seq_length))  # init returned array S
 
-    n_class = np.random.randint(1, k_classes)  # choose random class
+    if i_class < 0:
+        i_class = np.random.randint(1, k_classes)  # choose random class
 
     i = 0
     j = 0
     while i < n_seqs and j < A.shape[0]:  # either n seqs found or all seqs iterated
         seq = A[j]
-        if int(seq[0]) == n_class:  # if sequences class member, add to S
+        if int(seq[0]) == i_class:  # if sequences class member, add to S
             S[i] = seq[1:]
             i += 1
         j += 1
 
-    return S
+    return S[np.all(S, axis=1)]  # remove zero-valued rows
 
 
 def get_ucr_archive_path() -> str:
@@ -153,3 +154,55 @@ def plot_alignment(
     # plot original curves (with displacement in second curve)
     plt.plot(range(a.shape[0]), a, "-o", c="g")  # '-o' means show pts
     plt.plot(range(b.shape[0]), b + 1, "-o", c="b")  # c is color, 'k' stands for black
+
+
+def plot_clusters(clusters: [np.ndarray], means: [np.ndarray]):
+    """Plot list of clusters
+
+    Args:
+        clusters ([np.ndarray]): list of 2-D arrays
+        means ([np.ndarray]): list of sequences
+    """
+
+    for c_i, cluster in enumerate(clusters):
+        plot_cluster(cluster, means[c_i], c_i)
+
+
+def plot_cluster(cluster: np.ndarray, mean: np.ndarray, c_n=0):
+    """Plot individual cluster
+
+    Args:
+        cluster (np.ndarray): 2-D array with sequences along rows
+        mean (np.ndarray): mean sequence (i.e. centroid)
+        c_n (int, optional): cluster number (zero-indexed). Defaults to 0.
+    """
+    seq_len = cluster.shape[1]
+
+    # Setup figure
+    plt.figure(num=c_n, figsize=(12, 5), dpi=400)
+    plt.title(f"Cluster no. {c_n+1} with {len(cluster)} sequences")
+
+    # plot each sequence in cluster
+    for s_i in range(cluster.shape[0]):
+        plt.plot(range(seq_len), cluster[s_i], linewidth=0.5)
+
+    # plot centroid black
+    plt.plot(range(seq_len), mean, c="k", linewidth=1.5)
+
+
+def extract_class_sequences(S: np.ndarray, classes: [[int]]) -> [np.ndarray]:
+    """Return list of arrays, each containing sequences from one class
+
+    Args:
+        S (np.ndarray): all sequences
+        classes ([[int]]): for each class, list of indices (corresponding to S)
+
+    Returns:
+        [np.ndarray]: list of arrays
+    """
+    c_sequences = []
+    for c_indices in classes:
+        # extract class sequences from entire set
+        c_S = np.take(S, c_indices, axis=0)
+        c_sequences.append(c_S)
+    return c_sequences

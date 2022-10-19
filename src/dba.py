@@ -21,7 +21,7 @@ import numpy as np
 from .dtw import dtw
 
 
-def dba_mean(S: np.ndarray, n: int, verbose=False) -> np.ndarray:
+def dba_mean(S: np.ndarray, n=3, verbose=False) -> np.ndarray:
     """Perform n iterations of DBA on set of sequences
 
     Args:

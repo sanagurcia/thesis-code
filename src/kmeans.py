@@ -18,7 +18,7 @@ COL = "\033[96m"
 CEND = "\033[0m"
 
 
-def find_k_clusters(S: np.ndarray, k: int, verbose=False) -> (np.ndarray, np.ndarray):
+def find_k_clusters(S: np.ndarray, k: int, verbose=False) -> ([[int]], np.ndarray):
     """Find k clusters in set of sequences
 
     Performs k-means algorithm:
@@ -30,7 +30,7 @@ def find_k_clusters(S: np.ndarray, k: int, verbose=False) -> (np.ndarray, np.nda
         k (int): no. of clusters
 
     Returns:
-        (ndarray, ndarray): set of clusters, mean sequence for each cluster
+        ([[int]], ndarray): list of clusters, mean sequence for each cluster
     """
 
     # intialize k random centroids
@@ -84,7 +84,7 @@ def k_means_iteration(centroids: np.ndarray, S: np.ndarray, verbose=False) -> ([
     clusters = [[] for i in range(k)]
 
     if verbose:
-        print(f"\t{COL}[k-means]{CEND} Assigning sequences to nearest centroids...")
+        print(f"{COL}[k-means]{CEND} Assigning sequences to nearest centroids...")
 
     # assign each sequence to cluster with closest centroid
     for j in range(n_seq):  # for each sequence,
@@ -101,7 +101,7 @@ def k_means_iteration(centroids: np.ndarray, S: np.ndarray, verbose=False) -> ([
     centroids_update = np.zeros(centroids.shape)
 
     if verbose:
-        print(f"\t{COL}[k-means]{CEND} Recalculating centroids...")
+        print(f"{COL}[k-means]{CEND} Recalculating centroids...")
 
     # recalculate centroids
     for i in range(k):
