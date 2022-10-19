@@ -24,6 +24,7 @@ def dtw(a: np.ndarray, b: np.ndarray) -> (float, np.ndarray):
     return D[a.size - 1, b.size - 1]  # return total cost
 
 
+# 20-30x speed up!
 @njit
 def compute_dtw_array(a: np.ndarray, b: np.ndarray) -> (np.ndarray, np.ndarray):
     """Populate D(istance) and P(ath) arrays for two sequences, using euclidean distance"""
@@ -49,18 +50,31 @@ def compute_dtw_array(a: np.ndarray, b: np.ndarray) -> (np.ndarray, np.ndarray):
         D[0, j] = abs(a[0] - b[j]) + D[0, j - 1]  # dtw-cost := current-cost + predecessor-cost
         P[0, j] = [0, j - 1]  # store predecessor indices
 
-    # for all other entries (notice double FOR loop!)
+    # for all other entries
     for i in range(1, a.size):
         for j in range(1, b.size):
             # Store possible cell indices: top, left, diagonal
-            c = np.asarray([[i - 1, j], [i, j - 1], [i - 1, j - 1]])
-            d_values = np.asarray([D[c[0, 0], c[0, 1]], D[c[1, 0], c[1, 1]], D[c[2, 0], c[2, 1]]])
 
-            # Get minimum distance amongst predecessor cells
-            min_i = np.argmin(d_values)
+            d0 = D[i - 1, j]  # top
+            d1 = D[i, j - 1]  # left
+            d2 = D[i - 1, j - 1]  # diagonal
 
-            D[i, j] = abs(a[i] - b[j]) + D[c[min_i, 0], c[min_i, 1]]  # store cost
-            P[i, j] = c[min_i]  # store predecessor
+            # Find min predecessor
+            pre = [i - 1, j]
+            d_min = d0
+            if d1 < d0:
+                if d1 < d2:
+                    pre = [i, j - 1]
+                    d_min = d1
+                else:
+                    pre = [i - 1, j - 1]
+                    d_min = d2
+            elif d2 < d0:
+                pre = [i - 1, j - 1]
+                d_min = d2
+
+            D[i, j] = abs(a[i] - b[j]) + d_min  # store cost
+            P[i, j] = pre  # store predecessor
 
     return D, P
 
