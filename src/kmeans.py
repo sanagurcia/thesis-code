@@ -10,7 +10,7 @@ Functions:
 """
 
 import numpy as np
-from .dtw import dtw
+from .jit_dtw import dtw_cost
 from .dba import dba_mean
 
 DBA_ITERATIONS = 3
@@ -46,7 +46,7 @@ def find_k_clusters(S: np.ndarray, k: int, verbose=False) -> ([[int]], np.ndarra
 
     # while centroids don't converge, perform iteration
     j = 1
-    while not np.allclose(C, C_updated):
+    while not np.allclose(C, C_updated) and j < 5:
         if verbose:
             j += 1
             print(f"\n{COL}[k-means]{CEND} Iteration {j}...")
@@ -91,7 +91,7 @@ def k_means_iteration(centroids: np.ndarray, S: np.ndarray, verbose=False) -> ([
         candidate_c = (-1, np.inf)  # candidate centroid: (index, cost)
 
         for i in range(k):  # for each centroid
-            cost, _ = dtw(centroids[i], S[j])  # compute distance from seq to centroid
+            cost = dtw_cost(centroids[i], S[j])  # compute distance from seq to centroid
 
             if cost < candidate_c[1]:
                 candidate_c = (i, cost)
