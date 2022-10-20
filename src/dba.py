@@ -18,7 +18,7 @@ Functions:
 """
 
 import numpy as np
-from .dtw import dtw
+from .jit_dtw import dtw
 
 
 def dba_mean(S: np.ndarray, n=3, verbose=False) -> np.ndarray:
@@ -36,8 +36,9 @@ def dba_mean(S: np.ndarray, n=3, verbose=False) -> np.ndarray:
     if verbose:
         print(f"\nDBA Iteration 1 of {n}...")
 
-    # simple implementation: use first sequence as initial average
-    mean = perform_dba_iteration(np.copy(S[0]), S)
+    # use random sequence as initial average
+    rand_i = np.random.randint(0, S.shape[0])
+    mean = perform_dba_iteration(np.copy(S[rand_i]), S)
 
     for i in range(n - 1):
         if verbose:
@@ -48,6 +49,22 @@ def dba_mean(S: np.ndarray, n=3, verbose=False) -> np.ndarray:
         print("DBA Done.")
 
     return mean
+
+
+def perform_dba_iteration(current_average: np.ndarray, sequences: np.ndarray) -> np.ndarray:
+    """Given current avg sequence & set of all sequences, do one DBA iteration
+    Args:
+        current_average (np.ndarray): average sequence
+        sequences (np.ndarray): all sequences
+
+    Returns:
+        np.ndarray: updated average sequence
+    """
+
+    associations_table = calculate_associations(current_average, sequences)
+    updated_average_sequence = calculate_average_update(current_average, associations_table)
+
+    return updated_average_sequence
 
 
 def calculate_associations(seq_avg: np.ndarray, S: np.ndarray) -> np.ndarray:
@@ -105,25 +122,13 @@ def calculate_average_update(seq_avg: np.ndarray, A: np.ndarray) -> np.ndarray:
     """
 
     for i in range(seq_avg.size):
+        assert A[i][0] != 0
         seq_avg[i] = sum(A[i]) / len(A[i])  # barycenter is just a fancy word for average
 
     return seq_avg
 
 
-def perform_dba_iteration(current_average: np.ndarray, sequences: np.ndarray) -> np.ndarray:
-    """Given current avg sequence & set of all sequences, do one DBA iteration
-    Args:
-        current_average (np.ndarray): average sequence
-        sequences (np.ndarray): all sequences
-
-    Returns:
-        np.ndarray: updated average sequence
-    """
-
-    associations_table = calculate_associations(current_average, sequences)
-    updated_average_sequence = calculate_average_update(current_average, associations_table)
-
-    return updated_average_sequence
+### UTILS
 
 
 def calculate_average_cost_to_mean(current_mean: np.ndarray, sequences: np.ndarray) -> float:

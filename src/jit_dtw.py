@@ -9,7 +9,7 @@ Functions:
 """
 
 import numpy as np
-from numba import njit
+from numba import njit, jit
 
 
 def dtw(a: np.ndarray, b: np.ndarray) -> (float, np.ndarray):
