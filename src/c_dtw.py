@@ -33,7 +33,6 @@ def dtw_cost(seq_a: np.ndarray, seq_b: np.ndarray) -> np.float32:
         np.float32: DTW cost
     """
 
-    global _libdtw  # define as global "to help interpreter find it"
     a_length = seq_a.size
     b_length = seq_b.size
 
