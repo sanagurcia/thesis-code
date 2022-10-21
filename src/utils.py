@@ -20,6 +20,7 @@ Useful functions:
 
 import os
 import re
+import time
 from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
@@ -36,13 +37,13 @@ def get_n_sequences(dataset: str, n=-1) -> (np.ndarray, [[int]]):
         (sequences, [classes]): set of sequences, class lists with sequence indices
     """
 
-    D = np.genfromtxt(get_dataset_path(dataset))  # read raw data into A
+    D = np.genfromtxt(get_dataset_path(dataset), dtype="float32")  # read raw data into A
     k = get_dataset_no_classes(dataset)
 
     seq_len = D[0].shape[0] - 1  # seq len == len of any seq in dataset minus class info
     n_seq = n if n > 0 else D.shape[0]  # no. of sequences as queried or default total
 
-    S = np.zeros((n_seq, seq_len))  # initialize target array
+    S = np.zeros((n_seq, seq_len), dtype="float32")  # initialize target array
     classes = [[] for i in range(k)]  # create list of k lists for each class
 
     for i in range(n_seq):
@@ -69,9 +70,9 @@ def get_class_sequences(n_seqs: int, dataset: str, i_class=-1) -> np.ndarray:
     dataset_path = get_dataset_path(dataset)
     k_classes = get_dataset_no_classes(dataset)
 
-    A = np.genfromtxt(dataset_path)  # read all data into ndarray
+    A = np.genfromtxt(dataset_path, dtype="float32")  # read all data into ndarray
     seq_length = A[0].size - 1  # get sequence length
-    S = np.zeros((n_seqs, seq_length))  # init returned array S
+    S = np.zeros((n_seqs, seq_length), dtype="float32")  # init returned array S
 
     if i_class < 0:
         i_class = np.random.randint(1, k_classes)  # choose random class
@@ -220,3 +221,21 @@ def get_n_datasets(n=10) -> [str]:
     # fmt: off
     names = ["Adiac","ArrowHead","Beef","BeetleFly","BirdChicken","Car","CBF","ChlorineConcentration","CinCECGTorso","Coffee","Computers","CricketX","CricketY","CricketZ","DiatomSizeReduction","DistalPhalanxOutlineAgeGroup","DistalPhalanxOutlineCorrect","DistalPhalanxTW","Earthquakes","ECG200","ECG5000","ECGFiveDays","ElectricDevices","FaceAll","FaceFour","FacesUCR","FiftyWords","Fish","FordA","FordB","GunPoint","Ham","HandOutlines","Haptics","Herring","InlineSkate","InsectWingbeatSound","ItalyPowerDemand","LargeKitchenAppliances","Lightning2","Lightning7","Mallat","Meat","MedicalImages","MiddlePhalanxOutlineAgeGroup","MiddlePhalanxOutlineCorrect","MiddlePhalanxTW","MoteStrain","NonInvasiveFetalECGThorax1","NonInvasiveFetalECGThorax2","OliveOil","OSULeaf","PhalangesOutlinesCorrect","Phoneme","Plane","ProximalPhalanxOutlineAgeGroup","ProximalPhalanxOutlineCorrect","ProximalPhalanxTW","RefrigerationDevices","ScreenType","ShapeletSim","ShapesAll","SmallKitchenAppliances","SonyAIBORobotSurface1","SonyAIBORobotSurface2","StarLightCurves","Strawberry","SwedishLeaf","Symbols","SyntheticControl","ToeSegmentation1","ToeSegmentation2","Trace","TwoLeadECG","TwoPatterns","UWaveGestureLibraryAll","UWaveGestureLibraryX","UWaveGestureLibraryY","UWaveGestureLibraryZ","Wafer","Wine","WordSynonyms","Worms","WormsTwoClass","Yoga","ACSF1","AllGestureWiimoteX","AllGestureWiimoteY","AllGestureWiimoteZ","BME","Chinatown","Crop","DodgerLoopDay","DodgerLoopGame","DodgerLoopWeekend","EOGHorizontalSignal","EOGVerticalSignal","EthanolLevel","FreezerRegularTrain","FreezerSmallTrain","Fungi","GestureMidAirD1","GestureMidAirD2","GestureMidAirD3","GesturePebbleZ1","GesturePebbleZ2","GunPointAgeSpan","GunPointMaleVersusFemale","GunPointOldVersusYoung","HouseTwenty","InsectEPGRegularTrain","InsectEPGSmallTrain","MelbournePedestrian","MixedShapesRegularTrain","MixedShapesSmallTrain","PickupGestureWiimoteZ","PigAirwayPressure","PigArtPressure","PigCVP","PLAID","PowerCons","Rock","SemgHandGenderCh2","SemgHandMovementCh2","SemgHandSubjectCh2","ShakeGestureWiimoteZ","SmoothSubspace","UMD"]
     return names[:n]
+
+
+def time_execution(foo, a, b):
+    """Return execution time in milliseconds for function with two args.
+
+    Args:
+        foo (_type_): _description_
+        a (_type_): _description_
+        b (_type_): _description_
+
+    Returns:
+        float: execution duration
+    """
+    start = time.time()
+    foo(a, b)
+    end = time.time()
+    interval = round((end - start) * 10**3, 2)
+    return interval

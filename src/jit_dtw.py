@@ -116,8 +116,10 @@ def get_warping_path(P: np.ndarray) -> (np.ndarray):
 
 
 @njit  # 10x speed up over jitted-dtw with warping path
-def dtw_cost(a: np.ndarray, b: np.ndarray) -> float:
-    """Get DTW distance between two sequences
+def dtw_cost(a: np.ndarray, b: np.ndarray) -> np.float32:
+    """Get DTW distance between two sequences.
+
+    Note: jit casts the numpy.float32 type to python float64
 
     Args:
         a (np.ndarray): first sequence
@@ -130,15 +132,15 @@ def dtw_cost(a: np.ndarray, b: np.ndarray) -> float:
     D = np.zeros((a.size, b.size), dtype="float32")
 
     # init first cell
-    D[0, 0] = abs(a[0] - b[0])
+    D[0, 0] = np.abs(a[0] - b[0])
 
     # calculate dtw for first column
     for i in range(1, a.size):
-        D[i, 0] = abs(a[i] - b[0]) + D[i - 1, 0]  # dtw-cost := current-cost + predecessor-cost
+        D[i, 0] = np.abs(a[i] - b[0]) + D[i - 1, 0]  # dtw-cost := current-cost + predecessor-cost
 
     # calculate dtw for first row
     for j in range(1, b.size):
-        D[0, j] = abs(a[0] - b[j]) + D[0, j - 1]  # dtw-cost := current-cost + predecessor-cost
+        D[0, j] = np.abs(a[0] - b[j]) + D[0, j - 1]  # dtw-cost := current-cost + predecessor-cost
 
     # for all other entries
     for i in range(1, a.size):
@@ -157,6 +159,6 @@ def dtw_cost(a: np.ndarray, b: np.ndarray) -> float:
             elif d2 < d0:
                 d_min = d2
 
-            D[i, j] = abs(a[i] - b[j]) + d_min  # store cost
+            D[i, j] = np.abs(a[i] - b[j]) + d_min  # store cost
 
     return D[a.size - 1, b.size - 1]

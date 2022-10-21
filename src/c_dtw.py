@@ -10,7 +10,7 @@ import ctypes
 import numpy as np
 
 # create CDLL instance of source object
-_libdtw = ctypes.CDLL("libdtw.so")
+_libdtw = ctypes.CDLL("src/libdtw.so")
 
 # Specify argument types: (int, int, float*, float*); return type: float
 _libdtw.dtw_cost.argtypes = (
