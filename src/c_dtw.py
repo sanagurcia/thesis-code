@@ -42,10 +42,10 @@ def dtw_cost(seq_a: np.ndarray, seq_b: np.ndarray) -> np.float32:
     array_type_b = ctypes.c_float * b_length
 
     # call c func with c-typed arguments
-    result = _libdtw.dtw_cost(
+    cost = _libdtw.dtw_cost(
         ctypes.c_int(a_length),
         ctypes.c_int(b_length),
         array_type_a(*seq_a),
         array_type_b(*seq_b),
     )
-    return np.float32(result)  # cast ctypes.c_float result to numpy float32
+    return np.float32(cost)  # cast ctypes.c_float result to numpy float32
