@@ -57,8 +57,7 @@ float dtw_cost(int a_len, int b_len, float *a, float *b) {
 }
 
 // Return warping path from DTW computation
-// Max sequence length: unsigned int 16 bit (65000)
-void dtw_path(int a_len, int b_len, float *a, float *b, unsigned short *wp) {
+int dtw_path(int a_len, int b_len, float *a, float *b, unsigned short *wp) {
     // D holds accumulated DTW cost
     // P holds min predecessor: 2D array with (a_i, b_j) tuples, implemented as 3D array
 
@@ -69,7 +68,7 @@ void dtw_path(int a_len, int b_len, float *a, float *b, unsigned short *wp) {
     unsigned short(*P)[b_len][2] = malloc(sizeof(unsigned short[a_len][b_len][2]));
 
     if (D == NULL || P == NULL) {
-        return;  // malloc failed; abort
+        return -1;  // malloc failed; abort
     }
 
     // COMPUTE DTW ARRAYS: D & P
@@ -82,7 +81,7 @@ void dtw_path(int a_len, int b_len, float *a, float *b, unsigned short *wp) {
     for (int i = 1; i < a_len; i++) {
         // dtw_cost := current_cost + predecessor_cost
         D[i][0] = (float)fabs(a[i] - b[0]) + D[i - 1][0];
-        P[i][0][0] = i;
+        P[i][0][0] = i - 1;
         P[i][0][1] = 0;
     }
 
@@ -90,7 +89,7 @@ void dtw_path(int a_len, int b_len, float *a, float *b, unsigned short *wp) {
     for (int j = 1; j < b_len; j++) {
         D[0][j] = (float)fabs(a[0] - b[j]) + D[0][j - 1];
         P[0][j][0] = 0;
-        P[0][j][1] = j;
+        P[0][j][1] = j - 1;
     }
 
     // cost for all other entries
@@ -134,15 +133,15 @@ void dtw_path(int a_len, int b_len, float *a, float *b, unsigned short *wp) {
     wp[1] = b_j;
 
     int z = 2;
-    while (!(P[a_i][b_j][0] == 0 && P[a_i][b_j][1] == 0)) {
-        a_i = P[a_i][b_j][0];
-        b_j = P[a_i][b_j][1];
-        wp[z] = a_i;
-        wp[z + 1] = b_j;
+    while (!(a_i == 0 && b_j == 0)) {
+        wp[z] = P[a_i][b_j][0];
+        wp[z + 1] = P[a_i][b_j][1];
+        a_i = wp[z];
+        b_j = wp[z + 1];
         z += 2;
     }
 
-    free(D);
-    free(P);  // free allocated space
-    return;
+    free(D);  // free allocated space
+    free(P);
+    return z;  // return warping path length
 }

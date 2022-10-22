@@ -9,8 +9,6 @@ Functions:
 import ctypes
 import numpy as np
 
-# import numpy.ctypeslib as npct
-
 
 # create CDLL instance of source object
 _libdtw = ctypes.CDLL("src/libdtw.so")
@@ -52,28 +50,3 @@ def dtw_cost(seq_a: np.ndarray, seq_b: np.ndarray) -> np.float32:
         array_type_b(*seq_b),
     )
     return np.float32(cost)  # cast ctypes.c_float result to numpy float32
-
-
-# Different approach for dtw_path
-# lib_dtw = npct.load_library("libdtw.so", "/Users/santiago/thesis/code/src")
-
-
-# def dtw_path(seq_a: np.ndarray, seq_b: np.ndarray) -> np.ndarray:
-#     # longest possible warping path is a_len + b_len
-#     # allocate warping path
-#     wp = np.zeros((seq_a.size + seq_b.size) * 2, dtype="uint16")
-
-#     # Define ct types
-#     c_floatp = ctypes.POINTER(ctypes.c_float)  # ctype float*
-#     c_uintp = ctypes.POINTER(ctypes.c_uint16)  # ctype uint16*
-
-#     lib_dtw.dtw_path(
-#         seq_a.size,  # python int not need to be cast
-#         seq_b.size,
-#         seq_a.ctypes.data_as(c_floatp),  # cast np arrays to ctype float pointers
-#         seq_b.ctypes.data_as(c_floatp),
-#         wp.ctypes.data_as(c_uintp),  # index wp with step=2
-#     )
-
-#     wp = np.append(wp[wp != 0], [0, 0])  # remove all zeros except last pair
-#     return wp.reshape((int(wp.size / 2), 2))  # reshape warping path to nx2 array
