@@ -144,7 +144,7 @@ def plot_alignment(
         title (str, optional): title
     """
 
-    plt.figure(figsize=(12, 5))  # set figure size very wide
+    plt.figure(figsize=(12, 5), dpi=400)  # set figure size very wide
     plt.title(title)
 
     for a_i, b_j in path:

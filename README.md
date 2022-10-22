@@ -1,10 +1,3 @@
-### USAGE
-open python REPL
->>> from ucrdata import *
->>> get_sequences(n, dataset, k)
+To use c language implementation of DTW, create shared object file:
 
-
-### CONFIG
-This python project has a virtual environment. 
-To check that it's active, run `pip -V` or `echo $VIRUTAL_ENV`
-Activate with `.venv/bin/activate`
+$ cc -fPIC -shared -o libdtw.so dtw.c

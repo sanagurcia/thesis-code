@@ -19,6 +19,7 @@ Functions:
 
 import numpy as np
 from .jit_dtw import dtw
+from .c_path_dtw import dtw_path
 
 
 def dba_mean(S: np.ndarray, n=3, verbose=False) -> np.ndarray:
@@ -96,6 +97,7 @@ def calculate_associations(seq_avg: np.ndarray, S: np.ndarray) -> np.ndarray:
     for i in range(S.shape[0]):
         seq_s = S[i]
         _, path = dtw(seq_avg, seq_s)
+        # path = dtw_path(seq_avg, seq_s)   Failing occasionally
 
         # iterate thru path, adding coordinate from seq_s to corresponding list for seq_avg
         for j in range(path.shape[0]):
