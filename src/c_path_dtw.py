@@ -3,7 +3,7 @@ import ctypes as ct
 import numpy as np
 
 # Load library from shared object
-lib_dtw = npct.load_library("libdtw.so", ".")
+lib_dtw = npct.load_library("libdtw.so", "/Users/santiago/thesis/code/src")
 
 # Define ctypes
 c_floatp = ct.POINTER(ct.c_float)  # float*
@@ -30,6 +30,3 @@ def main():
     b = np.asarray([1, 4, 4, 4, 8], dtype="float32")
     wp = dtw_path(a, b)
     print(wp)
-
-
-main()
