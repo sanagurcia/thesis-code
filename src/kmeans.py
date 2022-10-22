@@ -79,6 +79,7 @@ def k_means_iteration(centroids: np.ndarray, S: np.ndarray, verbose=False) -> ([
     k = centroids.shape[0]
     n_seq = S.shape[0]
 
+    ##### CREATE CLUSTERS WITH DTW COST #####
     # create list of k lists for each cluster
     # each list will contain assigned sequence indices s_j of S
     clusters = [[] for i in range(k)]
@@ -98,6 +99,7 @@ def k_means_iteration(centroids: np.ndarray, S: np.ndarray, verbose=False) -> ([
 
         clusters[candidate_c[0]].append(j)  # add index s_j to cluster_i
 
+    ##### UPDATE CENTROIDS WITH DBA #####
     centroids_update = np.zeros(centroids.shape)
 
     if verbose:
@@ -108,6 +110,10 @@ def k_means_iteration(centroids: np.ndarray, S: np.ndarray, verbose=False) -> ([
 
         # collect all sequences of cluster_i in ndarray S_i
         L = len(clusters[i])
+        assert L > 0  # FIX-ME: sometimes a cluster is empty--i.e. no sequences assigned to it.
+        # if L == 0:
+        #     print(clusters[i])
+
         S_i = np.zeros((L, S.shape[1]))
 
         for l, s_j in enumerate(clusters[i]):  # fetch s_j from list, add sequence to cluster set
@@ -118,3 +124,33 @@ def k_means_iteration(centroids: np.ndarray, S: np.ndarray, verbose=False) -> ([
 
     # return clusters, updated centroids
     return clusters, centroids_update
+
+
+def main():
+    # To run script and ensure import works:
+    # python -m package.module
+    # i.e. python -m src.kmeans
+    from . import utils
+
+    D = utils.get_n_datasets(10)
+    rand = int(np.random.randint(0, 10))
+    S, classes = utils.get_n_sequences(D[rand])
+    k = len(classes)
+
+    # intialize k random centroids
+    indices = np.random.randint(0, S.shape[0], k)
+    C = np.zeros((k, S.shape[1]))
+    for i in range(indices.size):
+        C[i] = S[indices[i]]
+
+    clusters, C_updated = k_means_iteration(C, S)
+
+    j = 1
+    while j < 3:
+        C = np.copy(C_updated)
+        clusters, C_updated = k_means_iteration(C, S)
+        j += 1
+
+
+if __name__ == "__main__":
+    main()

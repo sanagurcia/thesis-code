@@ -96,8 +96,7 @@ def calculate_associations(seq_avg: np.ndarray, S: np.ndarray) -> np.ndarray:
     # for each sequence s, get associations based on optimal warping path
     for i in range(S.shape[0]):
         seq_s = S[i]
-        _, path = dtw(seq_avg, seq_s)
-        # path = dtw_path(seq_avg, seq_s)   Failing occasionally
+        path = dtw_path(seq_avg, seq_s)
 
         # iterate thru path, adding coordinate from seq_s to corresponding list for seq_avg
         for j in range(path.shape[0]):
