@@ -169,19 +169,26 @@ def plot_clusters(clusters: [np.ndarray], means: [np.ndarray]):
         plot_cluster(cluster, means[c_i], c_i)
 
 
-def plot_cluster(cluster: np.ndarray, mean: np.ndarray, c_n=0):
+def plot_cluster(cluster: np.ndarray, mean: np.ndarray, c_n=0, dataset_name=""):
     """Plot individual cluster
 
     Args:
         cluster (np.ndarray): 2-D array with sequences along rows
         mean (np.ndarray): mean sequence (i.e. centroid)
-        c_n (int, optional): cluster number (zero-indexed). Defaults to 0.
+        c_n (int, optional): cluster number. Defaults to 0.
     """
     seq_len = cluster.shape[1]
 
     # Setup figure
     plt.figure(num=c_n, figsize=(12, 5), dpi=400)
-    plt.title(f"Cluster no. {c_n+1} with {len(cluster)} sequences")
+
+    title = f"{len(cluster)} sequences"
+    if dataset_name:
+        title = f"Dataset '{dataset_name}', class with " + title
+    else:
+        title = f"Cluster no. {c_n} with " + title
+
+    plt.title(title)
 
     # plot each sequence in cluster
     for s_i in range(cluster.shape[0]):

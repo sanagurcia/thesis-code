@@ -143,12 +143,12 @@ def main():
     for i in range(indices.size):
         C[i] = S[indices[i]]
 
-    clusters, C_updated = k_means_iteration(C, S)
+    _, C_updated = k_means_iteration(C, S)
 
     j = 1
     while j < 3:
         C = np.copy(C_updated)
-        clusters, C_updated = k_means_iteration(C, S)
+        _, C_updated = k_means_iteration(C, S)
         j += 1
 
 

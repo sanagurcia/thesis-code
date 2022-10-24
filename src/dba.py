@@ -18,11 +18,11 @@ Functions:
 """
 
 import numpy as np
-from .jit_dtw import dtw
+from .jit_dtw import dtw_cost
 from .c_path_dtw import dtw_path
 
 
-def dba_mean(S: np.ndarray, n=3, verbose=False) -> np.ndarray:
+def dba_mean(S: np.ndarray, iterations=3, verbose=False) -> np.ndarray:
     """Perform n iterations of DBA on set of sequences
 
     Args:
@@ -35,15 +35,15 @@ def dba_mean(S: np.ndarray, n=3, verbose=False) -> np.ndarray:
     """
 
     if verbose:
-        print(f"\nDBA Iteration 1 of {n}...")
+        print(f"\nDBA Iteration 1 of {iterations}...")
 
     # use random sequence as initial average
     rand_i = np.random.randint(0, S.shape[0])
     mean = perform_dba_iteration(np.copy(S[rand_i]), S)
 
-    for i in range(n - 1):
+    for i in range(iterations - 1):
         if verbose:
-            print(f"DBA Iteration {i+2} of {n}...")
+            print(f"DBA Iteration {i+2} of {iterations}...")
         mean = perform_dba_iteration(mean, S)
 
     if verbose:
@@ -145,6 +145,6 @@ def calculate_average_cost_to_mean(current_mean: np.ndarray, sequences: np.ndarr
     total_cost = 0
     n_sequences = sequences.shape[0]
     for i in range(n_sequences):
-        cost, _ = dtw(current_mean, sequences[i])
+        cost = dtw_cost(current_mean, sequences[i])
         total_cost += cost
     return total_cost / n_sequences
