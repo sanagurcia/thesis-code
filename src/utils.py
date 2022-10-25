@@ -132,9 +132,7 @@ def get_dataset_no_classes(name: str) -> int:
             return int(res[0])
 
 
-def plot_alignment(
-    path: np.ndarray, a: np.ndarray, b: np.ndarray, title="DTW Point-to-Point Alignment"
-):
+def plot_alignment(path: np.ndarray, a: np.ndarray, b: np.ndarray, title="DTW Point-to-Point Alignment"):
     """Plot DTW alignemnt along warping path.
 
     Args:
@@ -231,7 +229,11 @@ def get_n_datasets(n=10, low_k=False) -> [str]:
     all_names = ["Adiac","ArrowHead","Beef","BeetleFly","BirdChicken","Car","CBF","ChlorineConcentration","CinCECGTorso","Coffee","Computers","CricketX","CricketY","CricketZ","DiatomSizeReduction","DistalPhalanxOutlineAgeGroup","DistalPhalanxOutlineCorrect","DistalPhalanxTW","Earthquakes","ECG200","ECG5000","ECGFiveDays","ElectricDevices","FaceAll","FaceFour","FacesUCR","FiftyWords","Fish","FordA","FordB","GunPoint","Ham","HandOutlines","Haptics","Herring","InlineSkate","InsectWingbeatSound","ItalyPowerDemand","LargeKitchenAppliances","Lightning2","Lightning7","Mallat","Meat","MedicalImages","MiddlePhalanxOutlineAgeGroup","MiddlePhalanxOutlineCorrect","MiddlePhalanxTW","MoteStrain","NonInvasiveFetalECGThorax1","NonInvasiveFetalECGThorax2","OliveOil","OSULeaf","PhalangesOutlinesCorrect","Phoneme","Plane","ProximalPhalanxOutlineAgeGroup","ProximalPhalanxOutlineCorrect","ProximalPhalanxTW","RefrigerationDevices","ScreenType","ShapeletSim","ShapesAll","SmallKitchenAppliances","SonyAIBORobotSurface1","SonyAIBORobotSurface2","StarLightCurves","Strawberry","SwedishLeaf","Symbols","SyntheticControl","ToeSegmentation1","ToeSegmentation2","Trace","TwoLeadECG","TwoPatterns","UWaveGestureLibraryAll","UWaveGestureLibraryX","UWaveGestureLibraryY","UWaveGestureLibraryZ","Wafer","Wine","WordSynonyms","Worms","WormsTwoClass","Yoga","ACSF1","AllGestureWiimoteX","AllGestureWiimoteY","AllGestureWiimoteZ","BME","Chinatown","Crop","DodgerLoopDay","DodgerLoopGame","DodgerLoopWeekend","EOGHorizontalSignal","EOGVerticalSignal","EthanolLevel","FreezerRegularTrain","FreezerSmallTrain","Fungi","GestureMidAirD1","GestureMidAirD2","GestureMidAirD3","GesturePebbleZ1","GesturePebbleZ2","GunPointAgeSpan","GunPointMaleVersusFemale","GunPointOldVersusYoung","HouseTwenty","InsectEPGRegularTrain","InsectEPGSmallTrain","MelbournePedestrian","MixedShapesRegularTrain","MixedShapesSmallTrain","PickupGestureWiimoteZ","PigAirwayPressure","PigArtPressure","PigCVP","PLAID","PowerCons","Rock","SemgHandGenderCh2","SemgHandMovementCh2","SemgHandSubjectCh2","ShakeGestureWiimoteZ","SmoothSubspace","UMD"]
     
     names = low_k_names if low_k else all_names
-    return names[:n]
+    names = np.asarray(names)   # allows indexing with array of random indices
+
+    random_indices = np.random.randint(0, len(names), size=n)
+
+    return names[random_indices]
 
 
 def time_execution(foo, a, b):

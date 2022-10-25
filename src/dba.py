@@ -21,6 +21,9 @@ import numpy as np
 from .jit_dtw import dtw_cost
 from .c_path_dtw import dtw_path
 
+COL = "\033[92m"
+CEND = "\033[0m"
+
 
 def dba_mean(S: np.ndarray, iterations=3, verbose=False) -> np.ndarray:
     """Perform n iterations of DBA on set of sequences
@@ -34,20 +37,28 @@ def dba_mean(S: np.ndarray, iterations=3, verbose=False) -> np.ndarray:
         np.ndarray: sample mean calculated by DBA
     """
 
-    if verbose:
-        print(f"\nDBA Iteration 1 of {iterations}...")
-
     # use random sequence as initial average
     rand_i = np.random.randint(0, S.shape[0])
-    mean = perform_dba_iteration(np.copy(S[rand_i]), S)
+    mean = np.copy(S[rand_i])
+    if verbose:
+        start_cost = calculate_average_cost_to_mean(mean, S)
 
-    for i in range(iterations - 1):
+    for i in range(iterations):
         if verbose:
-            print(f"DBA Iteration {i+2} of {iterations}...")
+            print(f"{COL}[DBA]{CEND} Iteration {i+1} of {iterations}...")
+            avg_cost_before = calculate_average_cost_to_mean(mean, S)
+
         mean = perform_dba_iteration(mean, S)
 
+        if verbose:
+            avg_cost_after = calculate_average_cost_to_mean(mean, S)
+            cost_change_percent = round(((avg_cost_before - avg_cost_after) / avg_cost_before * 100), 2)
+            print(f"{COL}[DBA]{CEND} Cost reduction {cost_change_percent}%")
+
     if verbose:
-        print("DBA Done.")
+        end_cost = calculate_average_cost_to_mean(mean, S)
+        cost_change_percent = round(((start_cost - end_cost) / start_cost * 100), 2)
+        print(f"{COL}[DBA]{CEND} Done. Total cost reduction {cost_change_percent}%")
 
     return mean
 
