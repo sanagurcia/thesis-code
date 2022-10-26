@@ -2,19 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>  // malloc()
 
-// Return min of three values
-float get_min(float a, float b, float c) {
-    float min;
-    if ((a < b) && (a < c)) {
-        min = a;
-    } else if (b < c) {
-        min = b;
-    } else {
-        min = c;
-    }
-    return min;
-}
-
 // Return dtw distance between two sequences
 float dtw_cost(int a_len, int b_len, float *a, float *b) {
     // D holds accumulated DTW cost
@@ -46,7 +33,15 @@ float dtw_cost(int a_len, int b_len, float *a, float *b) {
             float d2 = D[k - 1][l - 1];  // diagonal
 
             // find min predecessor
-            float min = get_min(d0, d1, d2);
+            float min;
+            if ((d0 < d1) && (d0 < d2)) {
+                min = d0;
+            } else if (d1 < d2) {
+                min = d1;
+            } else {
+                min = d2;
+            }
+
             D[k][l] = (float)fabs(a[k] - b[l]) + min;
         }
     }
@@ -56,7 +51,8 @@ float dtw_cost(int a_len, int b_len, float *a, float *b) {
     return cost;
 }
 
-// Return warping path from DTW computation
+// Perform DTW on two sequences & compute warping path
+// Insert warping path in already allocated array wp, return warping path length
 int dtw_path(int a_len, int b_len, float *a, float *b, unsigned short *wp) {
     // D holds accumulated DTW cost
     // P holds min predecessor: 2D array with (a_i, b_j) tuples, implemented as 3D array
