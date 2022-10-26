@@ -1,9 +1,10 @@
 """JITTED METHODS"""
 
-import math
 import numpy as np
 from numba import njit
-from .jit_dtw import dtw
+
+# pylint: disable-next=import-error
+from src.fast_dtw import dtw_path
 
 
 def dba_mean(S: np.ndarray, n=3, verbose=False) -> np.ndarray:
@@ -41,7 +42,7 @@ def do_fast_dba_iteration(seq_avg, S):
 
     for i in range(S.shape[0]):
         seq_s = S[i]
-        _, path = dtw(seq_avg, seq_s)
+        path = dtw_path(seq_avg, seq_s)
         push_associations(B, seq_s, path)
 
     return update_average_jit(seq_avg, B)
