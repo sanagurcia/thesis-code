@@ -1,8 +1,10 @@
 """
-DTW Module
+Vanilla DTW Module
 
 Module for computing dynamic time warping distance between two sequences.
 Follows pseudo code from Petitjean et al (2011).
+
+Written in pure python code with no optimizations.
 
 Functions:
     * dtw: computes vanilla DTW on two sequences

@@ -10,7 +10,7 @@ Functions:
 """
 
 import numpy as np
-from .jit_dtw import dtw_cost
+from .fast_dtw import dtw_cost
 from .dba import dba_mean
 
 DBA_ITERATIONS = 3

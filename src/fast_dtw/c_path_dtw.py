@@ -3,7 +3,8 @@ import ctypes as ct
 import numpy as np
 
 # Load library from shared object
-lib_dtw = npct.load_library("libdtw.so", "/Users/santiago/thesis/code/src")
+lib_dtw = npct.load_library("libdtw.so", "/Users/santiago/thesis/code/src/fast_dtw")
+# lib_dtw = npct.load_library("libdtw.so", "./src/fast_dtw") # also works, if cwd is thesis/code
 
 
 def dtw_path(seq_a: np.ndarray, seq_b: np.ndarray) -> np.ndarray:

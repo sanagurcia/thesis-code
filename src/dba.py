@@ -18,8 +18,8 @@ Functions:
 """
 
 import numpy as np
-from .jit_dtw import dtw_cost
-from .c_path_dtw import dtw_path
+from .fast_dtw import dtw_cost
+from .fast_dtw import dtw_path
 
 COL = "\033[92m"
 CEND = "\033[0m"
