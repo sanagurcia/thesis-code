@@ -2,6 +2,10 @@
 ctype wrapper for CLang-implemented DTW.
 Expects libdtw.so (source object of dtw.c) in same directory.
 
+This is an old wrapper for only dtw cost function.
+Needed new wrapping method (with numpy.ctypes) to allow accessing
+modified array (returned) via pointers.
+
 Functions:
     * dtw_cost - calculate DTW distance for two sequences
 """

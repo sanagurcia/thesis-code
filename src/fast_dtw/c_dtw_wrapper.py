@@ -1,5 +1,5 @@
-import numpy.ctypeslib as npct
 import ctypes as ct
+import numpy.ctypeslib as npct
 import numpy as np
 
 # Load library from shared object
@@ -27,13 +27,26 @@ def dtw_path(seq_a: np.ndarray, seq_b: np.ndarray) -> np.ndarray:
     return wp[:wp_length].reshape(wp_shape)
 
 
+def dtw_cost(seq_a: np.ndarray, seq_b: np.ndarray) -> float:
+    # Define ctypes
+    c_floatp = ct.POINTER(ct.c_float)  # float*
+    lib_dtw.dtw_cost.restype = ct.c_float  # define return type float
+
+    # call c func with casted c-typed arguments, using ndarray.ctypes.data_as()
+    cost = lib_dtw.dtw_cost(
+        seq_a.size,  # a_len
+        seq_b.size,  # b_len
+        seq_a.ctypes.data_as(c_floatp),  # *a
+        seq_b.ctypes.data_as(c_floatp),  # *b
+    )
+    return cost
+
+
 def main():
     a = np.asarray([1, 1, 3, 10, 10], dtype="float32")
     b = np.asarray([1, 4, 4, 4, 8], dtype="float32")
-    wp = dtw_path(a, b)
-    print(type(a))
-    print(type(b))
-    print(wp)
+    cost = dtw_cost(a, b)
+    print(cost)
 
 
 if __name__ == "__main__":
