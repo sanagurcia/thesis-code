@@ -19,7 +19,6 @@ Useful functions:
 """
 
 import os
-import re
 import time
 from pathlib import Path
 import numpy as np
@@ -44,7 +43,7 @@ def get_all_sequences(dataset: str, n=-1) -> (np.ndarray, [[int]]):
     n_seq = n if n > 0 else D.shape[0]  # no. of sequences as queried or default total
 
     S = np.zeros((n_seq, seq_len), dtype="float32")  # initialize target array
-    classes = [[] for i in range(k)]  # create list of k lists for each class
+    classes = [[] for i in range(k)]  # create k lists for each class
 
     for i in range(n_seq):
         raw_seq = D[i]
@@ -120,16 +119,12 @@ def get_dataset_no_classes(name: str) -> int:
     Returns:
         int: no of classes
     """
-    readme_path = f"{name}/README.md"
-    absolute_path = os.path.join(get_ucr_archive_path(), readme_path)
-    readme = open(absolute_path, encoding="utf-8")
-
-    # Find line with number of classes
-    while 1:
-        line = readme.readline()
-        if re.match("^Number of classses.*", line):
-            res = re.findall("[0-9]+", line)
-            return int(res[0])
+    data_summary_path = os.path.join(Path(os.getcwd()).parent, "data/clean_summary.tsv")
+    summary = np.genfromtxt(data_summary_path, delimiter=" ", dtype="str")
+    for line in summary:
+        # name, train size, test size, k-classes, seq length
+        if str(line[0]) == name:
+            return int(line[3])
 
 
 def plot_alignment(path: np.ndarray, a: np.ndarray, b: np.ndarray, title="DTW Point-to-Point Alignment"):
