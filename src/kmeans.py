@@ -134,7 +134,7 @@ def main():
 
     D = utils.get_n_datasets(10)
     rand = int(np.random.randint(0, 10))
-    S, classes = utils.get_n_sequences(D[rand])
+    S, classes = utils.get_all_sequences(D[rand])
     k = len(classes)
 
     # intialize k random centroids

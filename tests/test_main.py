@@ -1,4 +1,4 @@
-from src import dtw, dba, kmeans, utils
+from src import fast_dtw, dba, kmeans, utils
 
 
 DATASET = "Adiac"
@@ -16,9 +16,10 @@ def test_get_n_sequences():
     assert len(classes) == utils.get_dataset_no_classes(DATASET)
 
 
-def test_vanilla_dtw():
+def test_dtw():
     S = utils.get_class_sequences(2, DATASET)
-    cost, path = dtw.dtw(S[0], S[1])
+    cost = fast_dtw.dtw_cost(S[0], S[1])
+    path = fast_dtw.dtw_path(S[0], S[1])
 
     # Cost is a positive number, warping path is at least as long as first sequence
     assert cost > 0 and path.shape[0] >= S[0].shape[0]

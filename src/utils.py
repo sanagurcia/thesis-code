@@ -26,8 +26,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def get_n_sequences(dataset: str, n=-1) -> (np.ndarray, [[int]]):
-    """Get n sequences from dataset and sequence class information
+def get_all_sequences(dataset: str, n=-1) -> (np.ndarray, [[int]]):
+    """Get all sequences from dataset and sequence class information
 
     Args:
         dataset (str): dataset name
