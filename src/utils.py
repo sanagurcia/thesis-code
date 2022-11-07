@@ -24,8 +24,12 @@ from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
 
+# type aliases
+IndexList = [int]
+ClassList = [IndexList]
 
-def get_all_sequences(dataset: str, n=-1, train=True) -> (np.ndarray, [[int]]):
+
+def get_all_sequences(dataset: str, n=-1, train=True) -> (np.ndarray, ClassList):
     """Get all sequences from dataset and sequence class information
 
     Args:
@@ -128,6 +132,8 @@ def get_dataset_no_classes(name: str) -> int:
         if str(line[0]) == name:
             return int(line[3])
 
+    return -1
+
 
 def plot_alignment(path: np.ndarray, a: np.ndarray, b: np.ndarray, title="DTW Point-to-Point Alignment"):
     """Plot DTW alignemnt along warping path.
@@ -193,12 +199,12 @@ def plot_cluster(cluster: np.ndarray, mean: np.ndarray, c_n=0, dataset_name=""):
     plt.plot(range(seq_len), mean, c="k", linewidth=1.5)
 
 
-def extract_class_sequences(S: np.ndarray, classes: [[int]]) -> [np.ndarray]:
+def extract_class_sequences(S: np.ndarray, classes: ClassList) -> [np.ndarray]:
     """Return list of arrays, each containing sequences from one class
 
     Args:
         S (np.ndarray): all sequences
-        classes ([[int]]): for each class, list of indices (corresponding to S)
+        classes (ClassList): for each class, list of indices (corresponding to S)
 
     Returns:
         [np.ndarray]: list of arrays

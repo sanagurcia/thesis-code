@@ -6,3 +6,6 @@ Variables for calculating complexity:
 `n` := number of sequences
 `m` := length of sequence
 `k` := number of classes
+
+DTW: O(m^2)
+DBA: O(n*m*2)
