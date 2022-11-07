@@ -25,7 +25,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def get_all_sequences(dataset: str, n=-1) -> (np.ndarray, [[int]]):
+def get_all_sequences(dataset: str, n=-1, train=True) -> (np.ndarray, [[int]]):
     """Get all sequences from dataset and sequence class information
 
     Args:
@@ -36,7 +36,7 @@ def get_all_sequences(dataset: str, n=-1) -> (np.ndarray, [[int]]):
         (sequences, [classes]): set of sequences, class lists with sequence indices
     """
 
-    D = np.genfromtxt(get_dataset_path(dataset), dtype="float32")  # read raw data into A
+    D = np.genfromtxt(get_dataset_path(dataset, train), dtype="float32")  # read raw data into A
     k = get_dataset_no_classes(dataset)
 
     seq_len = D[0].shape[0] - 1  # seq len == len of any seq in dataset minus class info
@@ -97,16 +97,18 @@ def get_ucr_archive_path() -> str:
     return os.path.join(Path(os.getcwd()).parent, "data/UCRArchive_2018/")
 
 
-def get_dataset_path(name: str) -> str:
+def get_dataset_path(name: str, train=True) -> str:
     """Get absolute path to dataset.
 
     Args:
         name (str): directory name
+        train (bool): use train set or test set
 
     Returns:
         str: absolute path
     """
-    data_relative_path = f"{name}/{name}_TRAIN.tsv"
+    subset = "TRAIN" if train else "TEST"
+    data_relative_path = f"{name}/{name}_{subset}.tsv"
     return os.path.join(get_ucr_archive_path(), data_relative_path)
 
 
@@ -219,7 +221,7 @@ def get_n_datasets(n=10, low_k=False) -> [str]:
         [str]: list of n names
     """
     # fmt: off
-    low_k_names = ["ArrowHead","BeetleFly","BirdChicken","CBF","ChlorineConcentration","Coffee","Computers","DistalPhalanxOutlineAgeGroup","DistalPhalanxOutlineCorrect","Earthquakes","ECG200","ECGFiveDays","FordA","FordB","GunPoint","Ham","HandOutlines","Herring","ItalyPowerDemand","LargeKitchenAppliances","Lightning2","Meat","MiddlePhalanxOutlineAgeGroup","MiddlePhalanxOutlineCorrect","MoteStrain","PhalangesOutlinesCorrect","ProximalPhalanxOutlineAgeGroup","ProximalPhalanxOutlineCorrect","RefrigerationDevices","ScreenType","ShapeletSim","SmallKitchenAppliances","SonyAIBORobotSurface1","SonyAIBORobotSurface2","StarLightCurves","Strawberry","ToeSegmentation1","ToeSegmentation2","TwoLeadECG","Wafer","Wine","WormsTwoClass","Yoga","BME","Chinatown","DodgerLoopGame","DodgerLoopWeekend","FreezerRegularTrain","FreezerSmallTrain","GunPointAgeSpan","GunPointMaleVersusFemale","GunPointOldVersusYoung","HouseTwenty","InsectEPGRegularTrain","InsectEPGSmallTrain","PowerCons","SemgHandGenderCh2","SmoothSubspace","UMD"]
+    low_k_names = ["ArrowHead","BeetleFly","BirdChicken","CBF","ChlorineConcentration","Coffee","DistalPhalanxOutlineAgeGroup","DistalPhalanxOutlineCorrect","Earthquakes","ECG200","ECGFiveDays","FordA","FordB","GunPoint","Ham","HandOutlines","Herring","ItalyPowerDemand","LargeKitchenAppliances","Lightning2","Meat","MiddlePhalanxOutlineAgeGroup","MiddlePhalanxOutlineCorrect","MoteStrain","PhalangesOutlinesCorrect","ProximalPhalanxOutlineAgeGroup","ProximalPhalanxOutlineCorrect","RefrigerationDevices","ShapeletSim","SmallKitchenAppliances","SonyAIBORobotSurface1","SonyAIBORobotSurface2","StarLightCurves","Strawberry","ToeSegmentation1","ToeSegmentation2","TwoLeadECG","Wafer","Wine","WormsTwoClass","Yoga","BME","Chinatown","DodgerLoopGame","DodgerLoopWeekend","FreezerRegularTrain","FreezerSmallTrain","GunPointAgeSpan","GunPointMaleVersusFemale","GunPointOldVersusYoung","HouseTwenty","InsectEPGRegularTrain","InsectEPGSmallTrain","PowerCons","SemgHandGenderCh2","SmoothSubspace","UMD"]
     # fmt: off
     all_names = ["Adiac","ArrowHead","Beef","BeetleFly","BirdChicken","Car","CBF","ChlorineConcentration","CinCECGTorso","Coffee","Computers","CricketX","CricketY","CricketZ","DiatomSizeReduction","DistalPhalanxOutlineAgeGroup","DistalPhalanxOutlineCorrect","DistalPhalanxTW","Earthquakes","ECG200","ECG5000","ECGFiveDays","ElectricDevices","FaceAll","FaceFour","FacesUCR","FiftyWords","Fish","FordA","FordB","GunPoint","Ham","HandOutlines","Haptics","Herring","InlineSkate","InsectWingbeatSound","ItalyPowerDemand","LargeKitchenAppliances","Lightning2","Lightning7","Mallat","Meat","MedicalImages","MiddlePhalanxOutlineAgeGroup","MiddlePhalanxOutlineCorrect","MiddlePhalanxTW","MoteStrain","NonInvasiveFetalECGThorax1","NonInvasiveFetalECGThorax2","OliveOil","OSULeaf","PhalangesOutlinesCorrect","Phoneme","Plane","ProximalPhalanxOutlineAgeGroup","ProximalPhalanxOutlineCorrect","ProximalPhalanxTW","RefrigerationDevices","ScreenType","ShapeletSim","ShapesAll","SmallKitchenAppliances","SonyAIBORobotSurface1","SonyAIBORobotSurface2","StarLightCurves","Strawberry","SwedishLeaf","Symbols","SyntheticControl","ToeSegmentation1","ToeSegmentation2","Trace","TwoLeadECG","TwoPatterns","UWaveGestureLibraryAll","UWaveGestureLibraryX","UWaveGestureLibraryY","UWaveGestureLibraryZ","Wafer","Wine","WordSynonyms","Worms","WormsTwoClass","Yoga","ACSF1","AllGestureWiimoteX","AllGestureWiimoteY","AllGestureWiimoteZ","BME","Chinatown","Crop","DodgerLoopDay","DodgerLoopGame","DodgerLoopWeekend","EOGHorizontalSignal","EOGVerticalSignal","EthanolLevel","FreezerRegularTrain","FreezerSmallTrain","Fungi","GestureMidAirD1","GestureMidAirD2","GestureMidAirD3","GesturePebbleZ1","GesturePebbleZ2","GunPointAgeSpan","GunPointMaleVersusFemale","GunPointOldVersusYoung","HouseTwenty","InsectEPGRegularTrain","InsectEPGSmallTrain","MelbournePedestrian","MixedShapesRegularTrain","MixedShapesSmallTrain","PickupGestureWiimoteZ","PigAirwayPressure","PigArtPressure","PigCVP","PLAID","PowerCons","Rock","SemgHandGenderCh2","SemgHandMovementCh2","SemgHandSubjectCh2","ShakeGestureWiimoteZ","SmoothSubspace","UMD"]
     
@@ -247,3 +249,19 @@ def time_execution(foo, a, b):
     end = time.time()
     interval = round((end - start) * 10**3, 2)
     return interval
+
+
+def get_dataset_info(name: str):
+    data_summary_path = os.path.join(Path(os.getcwd()).parent, "data/clean_summary.tsv")
+    summary = np.genfromtxt(data_summary_path, delimiter=" ", dtype="str")
+
+    for line in summary:
+        # name, train size, test size, k-classes, seq length
+        if str(line[0]) == name:
+            return {
+                "name": line[0],
+                "train_size": int(line[1]),
+                "test_size": int(line[2]),
+                "classes": int(line[3]),
+                "sequence_length": int(line[4]),
+            }
