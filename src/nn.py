@@ -1,57 +1,52 @@
 from .fast_dtw import dtw_cost
 import numpy as np
 
+# type aliases
+IndexList = [int]
+ClusterIndexList = [IndexList]
 
-def classify(means: [np.ndarray], test_sequences: np.ndarray) -> [[int]]:
+
+def nearest_mean_classify(centroids: [np.ndarray], S: np.ndarray) -> ClusterIndexList:
     """Use nearest neighbor to associate each sequence in test set with closest mean.
     Complexity: O(n * k * m^2)
 
     Args:
-        means ([np.ndarray]): list of class-mean sequences
-        test_sequences (np.ndarray): sequencs to classify
+        centroids ([np.ndarray]): list of class-mean sequences
+        S (np.ndarray): sequencs to classify
 
     Returns:
-        [[int]]: class lists with indices to test_sequences array
+        [[int]]: class lists with indices to sequences array
     """
-    n = test_sequences.shape[0]
-    k = len(means)
+    n = S.shape[0]
+    k = len(centroids)
 
-    calculated_classes = [[] for j in range(k)]
+    clusters: ClusterIndexList = [[] for j in range(k)]
 
-    # for each sequence s_i in test set
-    for i in range(n):
-        s_i = test_sequences[i]
-        closet_mean_index = -1
-        lowest_cost = np.Inf
+    # assign each sequence to cluster with closest centroid
+    for j in range(n):  # for each sequence,
+        candidate_c = (-1, np.Inf)  # candidate centroid: (index, cost)
 
-        # for each available class mean, calculate distance from s_i to class mean
-        for j in range(k):
-            cost = dtw_cost(s_i, means[j])
-            if cost < lowest_cost:  # assign s_i to mean with lowest cost
-                lowest_cost = cost
-                closet_mean_index = j
+        for i in range(k):  # for each centroid
+            cost = dtw_cost(centroids[i], S[j])  # compute distance from seq to centroid
 
-        assigned_class = calculated_classes[closet_mean_index]
-        assigned_class.append(i)  # assign i of s_i to closest mean list
+            if cost < candidate_c[1]:
+                candidate_c = (i, cost)
 
-    return calculated_classes
+        clusters[candidate_c[0]].append(j)  # add index s_j to cluster_i
+
+    return clusters
 
 
-def calculate_success_rate(labeled_classes: [[int]], calculated_classes: [[int]], n: int) -> float:
+def calculate_success_rate(given_labels: ClusterIndexList, calculated_labels: ClusterIndexList, n: int) -> float:
 
-    correctly_classified = 0
+    # different approach: create sets of each cluster list and find difference
+    total_diff = 0
 
-    for test_i in range(n):
-        labeled_class = get_class_for_sequence(labeled_classes, test_i)
-        calculated_class = get_class_for_sequence(calculated_classes, test_i)
+    for i, _ in enumerate(given_labels):
+        given_set = set(given_labels[i])
+        calculated_set = set(calculated_labels[i])
+        assert isinstance(given_set, set) and isinstance(calculated_set, set)
+        total_diff += len(given_set.difference(calculated_set))
 
-        if labeled_class == calculated_class:
-            correctly_classified += 1
-
-    return round(correctly_classified / n, 2)
-
-
-def get_class_for_sequence(class_list: [[int]], seq_index):
-    for class_index, a_class in enumerate(class_list):
-        if seq_index in a_class:
-            return class_index
+    wrong_ratio = total_diff / n
+    return round(1 - wrong_ratio, 2)

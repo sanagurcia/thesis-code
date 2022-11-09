@@ -33,8 +33,11 @@ class Dataset:
     test_clusters: ClusterSequenceList = []
 
     # constructor
-    def __init__(self, name: str):
+    def __init__(self, name: str = ""):
         self.name = name
+        if name == "":
+            self.name = Dataset.get_random_dataset_names(1)[0]
+
         self.__set_summary_data()  # set details like no. sequences in datasets, no. classes, sequence length
         self.__set_full_sequence_sets()  # set full train & test sequence datasets
         self.__set_cluster_sequences()  # extract & set sequences in cluster datasets
@@ -52,7 +55,8 @@ class Dataset:
         S_test, test_labels = Dataset.get_all_sequences(self.name, self.no_clusters, train=False)
 
         # Sanity check: summary data == read-in data
-        assert self.sequence_length == S_train[0].shape[0] == S_test[0].shape[0]
+        if self.sequence_length != -1:
+            assert self.sequence_length == S_train[0].shape[0] == S_test[0].shape[0]
         assert self.train_set_size == S_train.shape[0]
         assert self.test_set_size == S_test.shape[0]
 
@@ -104,11 +108,15 @@ class Dataset:
         for line in summary:
             # name, train size, test size, k-clusters, seq length
             if str(line[0]) == name:
+                try:
+                    seq_len = int(line[4])
+                except ValueError:
+                    seq_len = -1  # some datasets have "Vary"ing sequence length
                 return {
                     "train_set_size": int(line[1]),
                     "test_set_size": int(line[2]),
                     "no_clusters": int(line[3]),
-                    "sequence_length": int(line[4]),
+                    "sequence_length": seq_len,
                 }
 
         raise RuntimeError(f"Dataset {name} not found.")

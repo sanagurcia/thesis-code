@@ -130,12 +130,11 @@ def main():
     # To run script and ensure import works:
     # python -m package.module
     # i.e. python -m src.kmeans
-    from . import utils
+    from .Dataset import Dataset
 
-    D = utils.get_n_datasets(10)
-    rand = int(np.random.randint(0, 10))
-    S, classes = utils.get_all_sequences(D[rand])
-    k = len(classes)
+    ds = Dataset()
+    S = ds.train_set
+    k = ds.no_clusters
 
     # intialize k random centroids
     indices = np.random.randint(0, S.shape[0], k)
