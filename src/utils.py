@@ -92,19 +92,13 @@ def plot_cluster(cluster: np.ndarray, mean: np.ndarray, c_n=1, dataset_name=""):
     plt.plot(range(seq_len), mean, c="k", linewidth=1.5)
 
 
-def time_execution(foo, a, b):
-    """Return execution time in milliseconds for function with two args.
+def time_it(f):
+    """Time execution duration of function; return milliseconds"""
 
-    Args:
-        foo (_type_): _description_
-        a (_type_): _description_
-        b (_type_): _description_
+    def wraped_f(*args, **kw):
+        start = time.time()
+        f(*args, **kw)
+        end = time.time()
+        return round((end - start) * 10**3, 3)  # in ms
 
-    Returns:
-        float: execution duration
-    """
-    start = time.time()
-    foo(a, b)
-    end = time.time()
-    interval = round((end - start) * 10**3, 2)
-    return interval
+    return wraped_f
