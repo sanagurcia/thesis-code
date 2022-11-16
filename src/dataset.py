@@ -93,11 +93,11 @@ class Dataset:
         COL = "\033[92m"
         CEND = "\033[0m"
         print(
-            f"{COL}{self.name} Dataset{CEND}\
+            f"\n{COL}{self.name} Dataset{CEND}\
             \nClusters: {self.no_clusters}\
             \nSequence length: {self.sequence_length}\
             \nTrain size: {self.train_set_size}\
-            \nTest size: {self.test_set_size}"
+            \nTest size: {self.test_set_size}\n"
         )
 
     @staticmethod
