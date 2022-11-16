@@ -1,10 +1,11 @@
 from src import utils, fast_dtw
 from src.Dataset import Dataset
-import dtw as g_dtw
+
+# import dtw as g_dtw
 
 # define globals: functions to be compared
 F1 = fast_dtw.dtw_cost
-F2 = g_dtw.dtw
+# F2 = g_dtw.dtw
 
 
 def compare_speeds():
@@ -27,5 +28,17 @@ def compare_speeds():
     print(f"Time F1: {t1}ms, time F2: {t2}ms")
 
 
+def test_fast_dtw():
+    ds = Dataset("Adiac")
+    a = ds.train_set[0]
+    b = ds.train_set[1]
+
+    cost = F1(a, b)
+    print(f"cost: {cost}")
+    wrapped_F1 = utils.time_it(F1)
+    t1 = wrapped_F1(a, b)
+    print(f"Time F1: {t1}ms")
+
+
 if __name__ == "__main__":
-    compare_speeds()
+    test_fast_dtw()
