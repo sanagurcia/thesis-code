@@ -1,21 +1,9 @@
 """Utils
 
-This module reads in sequences from the UCR Dataset and packages them into an ndarray.
-Expects to be run from project rootdir, which is a sibling of data/UCRArchive_2018.
-
-On UCR Dataset:
-    Contains roughly 150 separate time-series datasets, each as individual directory.
-    In each dataset directory 'UCRARchive_2018/<dataset>/':
-        * <dataset>_TRAIN.tsv
-        * <dataset>_TEST.tsv
-            - .tsv's encode one sequence per line; first field (int) indicates class
-        * README.md
-            - info on no. of sequences, sequence length, and no. classes in dataset
-
 Useful functions:
-    * get_n_sequences - returns ndarray of n sequences & class information
-    * get_class_sequences - returns ndarray of same-class-sequences from given dataset
     * plot_alignment - plots DTW alignment between 2 sequences
+    * plot_cluster - plots sequences in cluster and associated mean
+    * time_it - wraps another function to time execution
 """
 
 import time

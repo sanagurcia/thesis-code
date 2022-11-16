@@ -10,6 +10,17 @@ ClusterSequenceList = [np.ndarray]
 # global constants
 DATASETS_SUMMARY_FILE = "clean_summary.tsv"
 
+"""
+On UCR Dataset:
+    Contains roughly 150 separate time-series datasets, each as individual directory.
+    In each dataset directory 'UCRARchive_2018/<dataset>/':
+        * <dataset>_TRAIN.tsv
+        * <dataset>_TEST.tsv
+            - .tsv's encode one sequence per line; first field (int) indicates class
+        * README.md
+            - info on no. of sequences, sequence length, and no. classes in dataset
+"""
+
 
 class Dataset:
     """A UCR dataset
