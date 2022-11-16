@@ -38,6 +38,7 @@ def compare_speeds(f1, f2, f1_label, f2_label):
 
     print(f"{f1_label} average time: {t1_avg}")
     print(f"{f2_label} average time: {t2_avg}")
+    print(f"speedup f2:f1 ~= {round((t2_avg/t1_avg)*100, 0)}")
 
 
 if __name__ == "__main__":
