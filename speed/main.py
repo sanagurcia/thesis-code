@@ -18,6 +18,11 @@ def compare_speeds(f1, f2, f1_label, f2_label):
     a = ds.train_set[0]
     b = ds.train_set[1]
 
+    # warm up function
+    print("Warming up functions")
+    f1(a, b)
+    f2(a, b)
+
     # calculate DTW cost for sanity check
     wrapped_f1 = utils.time_it(f1)
     wrapped_f2 = utils.time_it(f2)
