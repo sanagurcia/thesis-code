@@ -28,7 +28,7 @@ def compare_speeds(f1, f2, f1_label, f2_label):
 
     t1_total = 0
     t2_total = 0
-    n = 10
+    n = ds.train_set_size
     for i in range(n):
         t1_total += wf1(S[0], S[i])
         t2_total += wf2(S[0], S[i])
