@@ -1,10 +1,10 @@
 from src import utils, fast_dtw
 from src.dataset import Dataset
-import dtw as g_dtw
+from tslearn.metrics import dtw
 
 # define globals: functions to be compared
 F1 = fast_dtw.dtw_cost
-F2 = g_dtw.dtw
+F2 = dtw
 
 
 def compare_speeds():
@@ -15,8 +15,7 @@ def compare_speeds():
 
     # calculate DTW cost for sanity check
     c1 = F1(a, b)
-    result = F2(a, b)
-    c2 = result.distance
+    c2 = F2(a, b)
     print(f"Cost from F1: {round(c1, 2)}, cost from F2: {round(c2, 2)}")
 
     wrapped_F1 = utils.time_it(F1)
@@ -26,19 +25,14 @@ def compare_speeds():
     t2 = wrapped_F2(a, b)
     print(f"Time F1: {t1}ms, time F2: {t2}ms")
 
-    print("\n")
 
-
-def test_fast_dtw():
+def test_tslearn():
     ds = Dataset("Adiac")
     a = ds.train_set[0]
     b = ds.train_set[1]
 
-    cost = F1(a, b)
-    print(f"cost: {cost}")
-    wrapped_F1 = utils.time_it(F1)
-    t1 = wrapped_F1(a, b)
-    print(f"Time F1: {t1}ms")
+    cost = F2(a, b)
+    print(f"Tslearn dtw cost: {cost}")
 
 
 if __name__ == "__main__":
