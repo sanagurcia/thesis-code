@@ -1,5 +1,5 @@
 from src import utils, fast_dtw
-from src.Dataset import Dataset
+from src.dataset import Dataset
 
 # import dtw as g_dtw
 
