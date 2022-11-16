@@ -10,11 +10,13 @@ G1 = fast_dtw.dtw_cost
 G2 = dtw
 
 
-def compare_speeds(f1, f2):
+def compare_speeds(f1, f2, label=""):
 
     ds = Dataset("Adiac")
     a = ds.train_set[0]
     b = ds.train_set[1]
+
+    print(label)
 
     # calculate DTW cost for sanity check
     wrapped_f1 = utils.time_it(f1)
@@ -26,5 +28,5 @@ def compare_speeds(f1, f2):
 
 
 if __name__ == "__main__":
-    compare_speeds(G1, G2)
-    compare_speeds(F1, F2)
+    compare_speeds(G1, G2, "cost methods: f1 -> sad, f2 -> tslearn")
+    compare_speeds(F1, F2, "path methods: f1 -> sad, f2 -> tslearn")
