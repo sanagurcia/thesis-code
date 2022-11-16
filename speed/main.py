@@ -15,21 +15,29 @@ G2 = dtw
 def compare_speeds(f1, f2, f1_label, f2_label):
 
     ds = Dataset("Adiac")
-    a = ds.train_set[0]
-    b = ds.train_set[1]
+    S = ds.train_set
 
     # warm up function
     print("Warming up functions")
-    f1(a, b)
-    f2(a, b)
+    f1(S[0], S[1])
+    f2(S[0], S[1])
 
-    # calculate DTW cost for sanity check
-    wrapped_f1 = utils.time_it(f1)
-    wrapped_f2 = utils.time_it(f2)
+    # wrap functions with time_it
+    wf1 = utils.time_it(f1)
+    wf2 = utils.time_it(f2)
 
-    t1 = wrapped_f1(a, b)
-    t2 = wrapped_f2(a, b)
-    print(f"Time {f1_label}: {t1}ms, time {f2_label}: {t2}ms")
+    t1_total = 0
+    t2_total = 0
+    n = 10
+    for i in range(n):
+        t1_total += wf1(S[0], S[i])
+        t2_total += wf2(S[0], S[i])
+
+    t1_avg = round(t1_total / n, 2)
+    t2_avg = round(t2_total / n, 2)
+
+    print(f"{f1_label} average time: {t1_avg}")
+    print(f"{f2_label} average time: {t2_avg}")
 
 
 if __name__ == "__main__":
