@@ -11,9 +11,13 @@ ClusterSequenceList = [np.ndarray]
 DATASETS_SUMMARY_FILE = "clean_summary.tsv"
 
 """
+This module assumes that the CWD has a sibling 'data' directory, containing the following:
+- UCRArchive/
+- DATASETS_SUMMARY_FILE
+
 On UCR Dataset:
     Contains roughly 150 separate time-series datasets, each as individual directory.
-    In each dataset directory 'UCRARchive_2018/<dataset>/':
+    In each dataset directory 'UCRArchive_2018/<dataset>/':
         * <dataset>_TRAIN.tsv
         * <dataset>_TEST.tsv
             - .tsv's encode one sequence per line; first field (int) indicates class
