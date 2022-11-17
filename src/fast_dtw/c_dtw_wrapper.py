@@ -45,6 +45,8 @@ def dtw_cost(seq_a: np.ndarray, seq_b: np.ndarray) -> float:
 def multi_dtw_cost(seq_a: np.ndarray, seq_b: np.ndarray) -> float:
     """Multidimensional dtw cost"""
 
+    # Assert that sequences are 2-D and that the second dimensions are equal
+    assert len(seq_a.shape) == len(seq_b.shape) == 2
     assert seq_a.shape[1] == seq_b.shape[1]
 
     # Define ctypes
@@ -65,6 +67,8 @@ def multi_dtw_cost(seq_a: np.ndarray, seq_b: np.ndarray) -> float:
 def multi_dtw_path(seq_a: np.ndarray, seq_b: np.ndarray) -> np.ndarray:
     """Multidimensional dtw path"""
 
+    # Assert that sequences are 2-D and that the second dimensions are equal
+    assert len(seq_a.shape) == len(seq_b.shape) == 2
     assert seq_a.shape[1] == seq_b.shape[1]
 
     seq_a_len = seq_a.shape[0]
