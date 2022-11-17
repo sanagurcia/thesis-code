@@ -1,5 +1,7 @@
 from src import utils, fast_dtw
 from src.dataset import Dataset
+
+# pylint: disable-next=import-error
 from tslearn.metrics import dtw, dtw_path
 
 # define globals: functions to be compared
@@ -22,6 +24,7 @@ def main(f1, f2):
 
     path1 = f1(a, b)
     path2 = f2(a, b)
+    p2 = path2[0]
 
     print(path1)
     print(path2)
