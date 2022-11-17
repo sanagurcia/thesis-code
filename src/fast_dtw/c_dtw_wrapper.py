@@ -4,6 +4,7 @@ import numpy as np
 
 # Load library from shared object
 lib_dtw = npct.load_library("libdtw.so", "./src/fast_dtw")  # cwd must be thesis/code
+lib_dtw2 = npct.load_library("libdtw2.so", "./src/fast_dtw")  # cwd must be thesis/code
 
 
 def dtw_path(seq_a: np.ndarray, seq_b: np.ndarray) -> np.ndarray:
@@ -41,11 +42,28 @@ def dtw_cost(seq_a: np.ndarray, seq_b: np.ndarray) -> float:
     return cost
 
 
+def dtw_cost2(seq_a: np.ndarray, seq_b: np.ndarray) -> float:
+    """Identical to dtw_cost above, except using lib_dtw2"""
+    # Define ctypes
+    c_floatp = ct.POINTER(ct.c_float)  # float*
+    lib_dtw2.dtw_cost.restype = ct.c_float  # define return type float
+
+    # call c func with casted c-typed arguments, using ndarray.ctypes.data_as()
+    cost = lib_dtw2.dtw_cost(
+        seq_a.size,  # a_len
+        seq_b.size,  # b_len
+        seq_a.ctypes.data_as(c_floatp),  # *a
+        seq_b.ctypes.data_as(c_floatp),  # *b
+    )
+    return cost
+
+
 def main():
     a = np.asarray([1, 1, 3, 10, 10], dtype="float32")
     b = np.asarray([1, 4, 4, 4, 8], dtype="float32")
-    cost = dtw_cost(a, b)
-    print(cost)
+    c1 = dtw_cost(a, b)
+    c2 = dtw_cost2(a, b)
+    print(f"c1: {c1}, c2: {c2}")
 
 
 if __name__ == "__main__":

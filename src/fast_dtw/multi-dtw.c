@@ -2,6 +2,11 @@
 #include <stdio.h>
 #include <stdlib.h>  // malloc()
 
+// a & b are arrays, i & j corresponding indices to these arrays
+float get_difference(float *a, float *b, int i, int j) {
+    return (float)fabs(a[i] - b[j]);
+}
+
 // Return dtw distance between two sequences
 float dtw_cost(int a_len, int b_len, float *a, float *b) {
     // D holds accumulated DTW cost
@@ -49,9 +54,4 @@ float dtw_cost(int a_len, int b_len, float *a, float *b) {
     float cost = D[a_len - 1][b_len - 1];  // cost in last entry
     free(D);                               // free allocated space
     return cost;
-}
-
-// a & b are arrays, i & j corresponding indices to these arrays
-float get_difference(float *a, float *b, int i, int j) {
-    return (float)fabs(a[i] - b[j]);
 }
