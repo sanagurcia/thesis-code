@@ -44,14 +44,18 @@ def dtw_cost(seq_a: np.ndarray, seq_b: np.ndarray) -> float:
 
 def dtw_cost2(seq_a: np.ndarray, seq_b: np.ndarray) -> float:
     """Identical to dtw_cost above, except using lib_dtw2"""
+
+    assert seq_a.shape[1] == seq_b.shape[1]
+
     # Define ctypes
     c_floatp = ct.POINTER(ct.c_float)  # float*
     lib_dtw2.dtw_cost.restype = ct.c_float  # define return type float
 
     # call c func with casted c-typed arguments, using ndarray.ctypes.data_as()
     cost = lib_dtw2.dtw_cost(
-        seq_a.size,  # a_len
-        seq_b.size,  # b_len
+        seq_a.shape[0],  # a_len
+        seq_b.shape[0],  # b_len
+        seq_a.shape[1],  # dimension
         seq_a.ctypes.data_as(c_floatp),  # *a
         seq_b.ctypes.data_as(c_floatp),  # *b
     )
@@ -59,11 +63,10 @@ def dtw_cost2(seq_a: np.ndarray, seq_b: np.ndarray) -> float:
 
 
 def main():
-    a = np.asarray([1, 1, 3, 10, 10], dtype="float32")
-    b = np.asarray([1, 4, 4, 4, 8], dtype="float32")
-    c1 = dtw_cost(a, b)
+    a = np.arange(12, dtype="float32").reshape((4, 3))
+    b = np.arange(1, 13, dtype="float32").reshape((4, 3))
     c2 = dtw_cost2(a, b)
-    print(f"c1: {c1}, c2: {c2}")
+    print(c2)
 
 
 if __name__ == "__main__":

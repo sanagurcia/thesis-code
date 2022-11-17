@@ -2,14 +2,20 @@
 #include <stdio.h>
 #include <stdlib.h>  // malloc()
 
-// a & b are arrays, i & j corresponding indices to these arrays
-float local_squared_distance(float *a, float *b, int i, int j) {
-    float diff = (float)(a[i] - b[j]);
-    return diff * diff;
+// a & b are arrays, i & j corresponding indices to these arrays, d is the dimension of a[x]
+float distance(float *a, float *b, int d, int i, int j) {
+    float distance = 0;
+    // get difference for each subentry
+    for (int step = 0; step <= d; step++) {
+        float diff = (float)a[i + step] - b[j + step];
+        distance = diff * diff;  // squared
+    }
+    return distance;
 }
 
 // Return dtw distance between two sequences
-float dtw_cost(int a_len, int b_len, float *a, float *b) {
+// length of sequences, dimension of sequences, sequences
+float dtw_cost(int a_len, int b_len, int d, float *a, float *b) {
     // D holds accumulated DTW cost
     // Allocate D: a_len x b_len (2D) array of floats
     float(*D)[b_len] = malloc(sizeof(float[a_len][b_len]));
@@ -18,17 +24,17 @@ float dtw_cost(int a_len, int b_len, float *a, float *b) {
     }
 
     // init first entry
-    D[0][0] = local_squared_distance(a, b, 0, 0);
+    D[0][0] = distance(a, b, d, 0, 0);
 
     // compute dtw cost for first column
     for (int i = 1; i < a_len; i++) {
         // dtw_cost := current_cost + predecessor_cost
-        D[i][0] = local_squared_distance(a, b, i, 0) + D[i - 1][0];
+        D[i][0] = distance(a, b, d, i, 0) + D[i - 1][0];
     }
 
     // compute dtw cost for first row
     for (int j = 1; j < b_len; j++) {
-        D[0][j] = local_squared_distance(a, b, 0, j) + D[0][j - 1];
+        D[0][j] = distance(a, b, d, 0, j) + D[0][j - 1];
     }
 
     // cost for all other entries
@@ -48,7 +54,7 @@ float dtw_cost(int a_len, int b_len, float *a, float *b) {
                 min = d2;
             }
 
-            D[k][l] = local_squared_distance(a, b, k, l) + min;
+            D[k][l] = distance(a, b, d, k, l) + min;
         }
     }
 
