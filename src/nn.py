@@ -50,3 +50,24 @@ def calculate_success_rate(given_labels: ClusterIndexList, calculated_labels: Cl
 
     wrong_ratio = total_diff / n
     return round(1 - wrong_ratio, 2)
+
+
+if __name__ == "__main__":
+    from src.dataset import Dataset
+    from src import dba
+
+    ds = Dataset()
+
+    # compute cluster means with DBA
+    cluster_means = []
+    for cluster in ds.train_clusters:
+        mean = dba.dba_mean(cluster)
+        cluster_means.append(mean)
+
+    # get TEST classes and classify with nearest neighbor method
+    print(f"Performing mean-based NN on test set of length {ds.test_set_size}...")
+
+    calculated_labels = nearest_mean_classify(cluster_means, ds.test_set)
+
+    success = calculate_success_rate(ds.test_labels, calculated_labels, ds.test_set_size)
+    print(f"Success rate: {success}")
