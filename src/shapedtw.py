@@ -1,12 +1,32 @@
-from src.fast_dtw import multi_dtw_cost, multi_dtw_path
-import numpy as np
 import math
+import numpy as np
+from src.fast_dtw import multi_dtw_cost, multi_dtw_path
 
 
-def sequence_to_shape_descriptors(seq: np.ndarray, l=5) -> (np.ndarray):
+DESCRIPTOR = "IDENTITY"
+L = 5
+
+
+def path(seq_a: np.ndarray, seq_b: np.ndarray):
+    """Return shape dtw alignment between two sequences"""
+    sd_a = to_shape_descriptors(seq_a)
+    sd_b = to_shape_descriptors(seq_b)
+
+    return multi_dtw_path(sd_a, sd_b)
+
+
+def cost(seq_a: np.ndarray, seq_b: np.ndarray):
+    """Return shape dtw distance between two sequences"""
+    sd_a = to_shape_descriptors(seq_a)
+    sd_b = to_shape_descriptors(seq_b)
+
+    return multi_dtw_cost(sd_a, sd_b)
+
+
+def to_shape_descriptors(seq: np.ndarray) -> (np.ndarray):
     """Return 2D shape descriptor mapping from given 1D sequence"""
 
-    subsequences = sample_subsequences(seq, l)
+    subsequences = sample_subsequences(seq, L)
 
     return subsequences
 
@@ -28,6 +48,7 @@ def sample_subsequences(seq: np.ndarray, l: int) -> np.ndarray:
 
 
 def pad_ends(seq: np.ndarray, l: int) -> np.ndarray:
+    """Repeat start and end values of given sequence"""
     pad_size = math.floor(l / 2)
     m = seq.size
 
