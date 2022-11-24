@@ -18,6 +18,8 @@ Functions:
 """
 
 import numpy as np
+
+# pylint: disable-next=import-error
 from .fast_dtw import dtw_cost, dtw_path
 from .shapedtw import shapedtw_cost, shapedtw_path
 
