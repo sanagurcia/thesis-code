@@ -4,10 +4,10 @@ from src.fast_dtw import multi_dtw_cost, multi_dtw_path
 
 
 DESCRIPTOR = "IDENTITY"
-L = 5
+L = 7
 
 
-def path(seq_a: np.ndarray, seq_b: np.ndarray):
+def shapedtw_path(seq_a: np.ndarray, seq_b: np.ndarray):
     """Return shape dtw alignment between two sequences"""
     sd_a = to_shape_descriptors(seq_a)
     sd_b = to_shape_descriptors(seq_b)
@@ -15,7 +15,7 @@ def path(seq_a: np.ndarray, seq_b: np.ndarray):
     return multi_dtw_path(sd_a, sd_b)
 
 
-def cost(seq_a: np.ndarray, seq_b: np.ndarray):
+def shapedtw_cost(seq_a: np.ndarray, seq_b: np.ndarray):
     """Return shape dtw distance between two sequences"""
     sd_a = to_shape_descriptors(seq_a)
     sd_b = to_shape_descriptors(seq_b)

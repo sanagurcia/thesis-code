@@ -18,11 +18,16 @@ Functions:
 """
 
 import numpy as np
-from .fast_dtw import dtw_cost
-from .fast_dtw import dtw_path
+from .fast_dtw import dtw_cost, dtw_path
+from .shapedtw import shapedtw_cost, shapedtw_path
 
 COL = "\033[92m"
 CEND = "\033[0m"
+
+# cost = dtw_cost
+cost = shapedtw_cost
+# path = dtw_path
+path = shapedtw_path
 
 
 def dba_mean(S: np.ndarray, iterations=3, verbose=False) -> np.ndarray:
@@ -107,11 +112,11 @@ def calculate_associations(seq_avg: np.ndarray, S: np.ndarray) -> np.ndarray:
     # for each sequence s, get associations based on optimal warping path
     for i in range(S.shape[0]):
         seq_s = S[i]
-        path = dtw_path(seq_avg, seq_s)
+        wp = path(seq_avg, seq_s)
 
         # iterate thru path, adding coordinate from seq_s to corresponding list for seq_avg
-        for j in range(path.shape[0]):
-            avg_j, s_j = path[j]  # indices for seq_avg & seq_s at this point in path
+        for j in range(wp.shape[0]):
+            avg_j, s_j = wp[j]  # indices for seq_avg & seq_s at this point in path
             if A[avg_j] == 0:
                 # if avg_j coordinate has no associations, init list with value at s_j
                 A[avg_j] = [seq_s[s_j]]
@@ -156,6 +161,5 @@ def calculate_average_cost_to_mean(current_mean: np.ndarray, sequences: np.ndarr
     total_cost = 0
     n_sequences = sequences.shape[0]
     for i in range(n_sequences):
-        cost = dtw_cost(current_mean, sequences[i])
-        total_cost += cost
+        total_cost += cost(current_mean, sequences[i])
     return total_cost / n_sequences

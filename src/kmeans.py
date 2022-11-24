@@ -130,7 +130,7 @@ def main():
     # To run script and ensure import works:
     # python -m package.module
     # i.e. python -m src.kmeans
-    from .Dataset import Dataset
+    from .dataset import Dataset
 
     ds = Dataset()
     S = ds.train_set
