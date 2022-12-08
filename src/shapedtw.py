@@ -3,9 +3,9 @@ import numpy as np
 from src.fast_dtw import multi_dtw_cost, multi_dtw_path
 from src.fast_dtw import dtw_cost, dtw_path
 
-
-DESCRIPTOR = "DERIVATIVE"
-L = 5
+# descriptors: 'RAW_SUBSEQUENCE', 'DERIVATIVE'
+DESCRIPTOR = "RAW_SUBSEQUENCE"
+L = 30  # see Zhao et al
 
 
 def shapedtw_path(seq_a: np.ndarray, seq_b: np.ndarray) -> np.ndarray:

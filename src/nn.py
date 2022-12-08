@@ -1,9 +1,18 @@
 from .fast_dtw import dtw_cost
+from .shapedtw import shapedtw_cost
 import numpy as np
 
 # type aliases
 IndexList = [int]
 ClusterIndexList = [IndexList]
+
+cost_measure = shapedtw_cost
+
+
+def classify_and_measure_success(centroids: [np.ndarray], S: np.ndarray, given_labels: ClusterIndexList) -> float:
+    """Predict labels via means-based NN & measure success rate compared to given labels."""
+    predicted_labels = nearest_mean_classify(centroids, S)
+    return calculate_success_rate(given_labels, predicted_labels, S.shape[0])
 
 
 def nearest_mean_classify(centroids: [np.ndarray], S: np.ndarray) -> ClusterIndexList:
@@ -27,7 +36,7 @@ def nearest_mean_classify(centroids: [np.ndarray], S: np.ndarray) -> ClusterInde
         candidate_c = (-1, np.Inf)  # candidate centroid: (index, cost)
 
         for i in range(k):  # for each centroid
-            cost = dtw_cost(centroids[i], S[j])  # compute distance from seq to centroid
+            cost = cost_measure(centroids[i], S[j])  # compute distance from seq to centroid
 
             if cost < candidate_c[1]:
                 candidate_c = (i, cost)
@@ -37,16 +46,19 @@ def nearest_mean_classify(centroids: [np.ndarray], S: np.ndarray) -> ClusterInde
     return clusters
 
 
-def calculate_success_rate(given_labels: ClusterIndexList, calculated_labels: ClusterIndexList, n: int) -> float:
+def calculate_success_rate(given_labels: ClusterIndexList, predicted_labels: ClusterIndexList, n: int) -> float:
+    """Calculate difference between given labels & predicted labels. Divide difference--i.e.,
+    wrongly classified instances--by size of set. Return success ratio.
+    """
 
     # different approach: create sets of each cluster list and find difference
     total_diff = 0
 
     for i, _ in enumerate(given_labels):
         given_set = set(given_labels[i])
-        calculated_set = set(calculated_labels[i])
-        assert isinstance(given_set, set) and isinstance(calculated_set, set)
-        total_diff += len(given_set.difference(calculated_set))
+        predicted_set = set(predicted_labels[i])
+        assert isinstance(given_set, set) and isinstance(predicted_set, set)
+        total_diff += len(given_set.difference(predicted_set))
 
     wrong_ratio = total_diff / n
     return round(1 - wrong_ratio, 2)

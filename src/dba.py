@@ -20,148 +20,158 @@ Functions:
 import numpy as np
 
 # pylint: disable-next=import-error
-from .fast_dtw import dtw_cost, dtw_path
+from .fast_dtw import dtw_cost as vanilla_dtw_cost, dtw_path as vanilla_dtw_path
 from .shapedtw import shapedtw_cost, shapedtw_path
 
 COL = "\033[92m"
 CEND = "\033[0m"
 
-# cost = dtw_cost
-cost = shapedtw_cost
-# path = dtw_path
-path = shapedtw_path
 
+class DBA:
+    sequences = np.ndarray
+    iterations: int = 3
+    verbose: bool = False
+    dtw_path = vanilla_dtw_path
+    dtw_cost = vanilla_dtw_cost
 
-def dba_mean(S: np.ndarray, iterations=3, verbose=False) -> np.ndarray:
-    """Perform n iterations of DBA on set of sequences
+    def __init__(self, sequences: np.ndarray, method: str):
+        self.sequences = sequences
+        self.set_dtw_method(method)
 
-    Args:
-        S (np.ndarray): set of sequences
-        n (int): no. of iterations
-        verbose (bool): print info about iteration
+    def set_dtw_method(self, method: str):
+        if method == "SHAPE":
+            self.dtw_path = shapedtw_path
+            self.dtw_cost = shapedtw_cost
 
-    Returns:
-        np.ndarray: sample mean calculated by DBA
-    """
+        elif method == "VANILLA":
+            self.dtw_path = vanilla_dtw_path
+            self.dtw_cost = vanilla_dtw_cost
 
-    # use random sequence as initial average
-    rand_i = np.random.randint(0, S.shape[0])
-    mean = np.copy(S[rand_i])
-    if verbose:
-        start_cost = calculate_average_cost_to_mean(mean, S)
+    def mean(self) -> np.ndarray:
+        """Perform n iterations of DBA on set of sequences
 
-    for i in range(iterations):
-        if verbose:
-            print(f"{COL}[DBA]{CEND} Iteration {i+1} of {iterations}...")
-            avg_cost_before = calculate_average_cost_to_mean(mean, S)
+        Args:
+            S (np.ndarray): set of sequences
+            n (int): no. of iterations
+            verbose (bool): print info about iteration
 
-        mean = perform_dba_iteration(mean, S)
+        Returns:
+            np.ndarray: sample mean calculated by DBA
+        """
 
-        if verbose:
-            avg_cost_after = calculate_average_cost_to_mean(mean, S)
-            cost_change_percent = round(((avg_cost_before - avg_cost_after) / avg_cost_before * 100), 2)
-            print(f"{COL}[DBA]{CEND} Cost reduction {cost_change_percent}%")
+        # use random sequence as initial average
+        rand_i = np.random.randint(0, self.sequences.shape[0])
+        mean = np.copy(self.sequences[rand_i])
+        if self.verbose:
+            start_cost = self.calculate_average_cost_to_mean(mean)
 
-    if verbose:
-        end_cost = calculate_average_cost_to_mean(mean, S)
-        cost_change_percent = round(((start_cost - end_cost) / start_cost * 100), 2)
-        print(f"{COL}[DBA]{CEND} Done. Total cost reduction {cost_change_percent}%")
+        for i in range(self.iterations):
+            if self.verbose:
+                print(f"{COL}[DBA]{CEND} Iteration {i+1} of {self.iterations}...")
+                avg_cost_before = self.calculate_average_cost_to_mean(mean)
 
-    return mean
+            mean = self.perform_dba_iteration(mean)
 
+            if self.verbose:
+                avg_cost_after = self.calculate_average_cost_to_mean(mean)
+                cost_change_percent = round(((avg_cost_before - avg_cost_after) / avg_cost_before * 100), 2)
+                print(f"{COL}[DBA]{CEND} Cost reduction {cost_change_percent}%")
 
-def perform_dba_iteration(current_average: np.ndarray, sequences: np.ndarray) -> np.ndarray:
-    """Given current avg sequence & set of all sequences, do one DBA iteration
-    Args:
-        current_average (np.ndarray): average sequence
-        sequences (np.ndarray): all sequences
+        if self.verbose:
+            end_cost = self.calculate_average_cost_to_mean(mean)
+            cost_change_percent = round(((start_cost - end_cost) / start_cost * 100), 2)
+            print(f"{COL}[DBA]{CEND} Done. Total cost reduction {cost_change_percent}%")
 
-    Returns:
-        np.ndarray: updated average sequence
-    """
+        return mean
 
-    associations_table = calculate_associations(current_average, sequences)
-    updated_average_sequence = calculate_average_update(current_average, associations_table)
+    def perform_dba_iteration(self, current_average: np.ndarray) -> np.ndarray:
+        """Given current avg sequence & set of all sequences, do one DBA iteration
+        Args:
+            current_average (np.ndarray): average sequence
+            sequences (np.ndarray): all sequences
 
-    return updated_average_sequence
+        Returns:
+            np.ndarray: updated average sequence
+        """
 
+        associations_table = self.calculate_associations(current_average)
+        updated_average_sequence = self.calculate_average_update(current_average, associations_table)
 
-def calculate_associations(seq_avg: np.ndarray, S: np.ndarray) -> np.ndarray:
-    """Calculate associations table
+        return updated_average_sequence
 
-    For each sequence seq_s in S:
-        - use DTW to align average sequence with seq_s
-        - for each entry j from alignment/warping-path:
-            - include s_j coordinate in associations lsit of avg_j coordinate
+    def calculate_associations(self, seq_avg: np.ndarray) -> np.ndarray:
+        """Calculate associations table
 
-    Thus each coordinate in seq_avg is associated with a set of aligned coordinates from all seq_s in S.
+        For each sequence seq_s in S:
+            - use DTW to align average sequence with seq_s
+            - for each entry j from alignment/warping-path:
+                - include s_j coordinate in associations lsit of avg_j coordinate
 
-    Runtime complexity: O(n*m^2)
-        n := no. of sequences to average
-        m := length of each sequence
-    complexity =~ n [outer-loop] * (m^2 [dtw] + m [inner-loop]) =~ n * (m^2 + m) => O(n*m^2)
+        Thus each coordinate in seq_avg is associated with a set of aligned coordinates from all seq_s in S.
 
-    Args:
-        seq_avg (np.ndarray): current average sequence
-        S (np.ndarray): set of sequences to be averaged
+        Runtime complexity: O(n*m^2)
+            n := no. of sequences to average
+            m := length of each sequence
+        complexity =~ n [outer-loop] * (m^2 [dtw] + m [inner-loop]) =~ n * (m^2 + m) => O(n*m^2)
 
-    Returns:
-        np.ndarray: associations table
-    """
+        Args:
+            seq_avg (np.ndarray): current average sequence
+            S (np.ndarray): set of sequences to be averaged
 
-    A = np.zeros(seq_avg.size, dtype=object)  # associations table
+        Returns:
+            np.ndarray: associations table
+        """
 
-    # for each sequence s, get associations based on optimal warping path
-    for i in range(S.shape[0]):
-        seq_s = S[i]
-        wp = path(seq_avg, seq_s)
+        A = np.zeros(seq_avg.size, dtype=object)  # associations table
 
-        # iterate thru path, adding coordinate from seq_s to corresponding list for seq_avg
-        for j in range(wp.shape[0]):
-            avg_j, s_j = wp[j]  # indices for seq_avg & seq_s at this point in path
-            if A[avg_j] == 0:
-                # if avg_j coordinate has no associations, init list with value at s_j
-                A[avg_j] = [seq_s[s_j]]
-            else:
-                # add s_j value to associations list for avg_j
-                A[avg_j].append(seq_s[s_j])
+        # for each sequence s, get associations based on optimal warping path
+        for i in range(self.sequences.shape[0]):
+            seq_s = self.sequences[i]
+            wp = self.dtw_path(seq_avg, seq_s)
 
-    return A
+            # iterate thru path, adding coordinate from seq_s to corresponding list for seq_avg
+            for j in range(wp.shape[0]):
+                avg_j, s_j = wp[j]  # indices for seq_avg & seq_s at this point in path
+                if A[avg_j] == 0:
+                    # if avg_j coordinate has no associations, init list with value at s_j
+                    A[avg_j] = [seq_s[s_j]]
+                else:
+                    # add s_j value to associations list for avg_j
+                    A[avg_j].append(seq_s[s_j])
 
+        return A
 
-def calculate_average_update(seq_avg: np.ndarray, A: np.ndarray) -> np.ndarray:
-    """Calculate new average sequence based on associations table
+    def calculate_average_update(self, seq_avg: np.ndarray, A: np.ndarray) -> np.ndarray:
+        """Calculate new average sequence based on associations table
 
-    Args:
-        seq_avg (np.ndarray): current average sequence
-        A (np.ndarray): associations table
+        Args:
+            seq_avg (np.ndarray): current average sequence
+            A (np.ndarray): associations table
 
-    Returns:
-        np.ndarray: new average sequence
-    """
+        Returns:
+            np.ndarray: new average sequence
+        """
 
-    for i in range(seq_avg.size):
-        assert A[i][0] != 0
-        seq_avg[i] = sum(A[i]) / len(A[i])  # barycenter is just a fancy word for average
+        for i in range(seq_avg.size):
+            assert A[i][0] != 0
+            seq_avg[i] = sum(A[i]) / len(A[i])  # barycenter is just a fancy word for average
 
-    return seq_avg
+        return seq_avg
 
+    ### UTILS
 
-### UTILS
+    def calculate_average_cost_to_mean(self, current_mean: np.ndarray) -> float:
+        """(Sanity check purposes) Return average cost from mean to set of sequences
 
+        Args:
+            current_mean (np.ndarray)
+            sequences (np.ndarray)
 
-def calculate_average_cost_to_mean(current_mean: np.ndarray, sequences: np.ndarray) -> float:
-    """(Sanity check purposes) Return average cost from mean to set of sequences
-
-    Args:
-        current_mean (np.ndarray)
-        sequences (np.ndarray)
-
-    Returns:
-        float: average cost
-    """
-    total_cost = 0
-    n_sequences = sequences.shape[0]
-    for i in range(n_sequences):
-        total_cost += cost(current_mean, sequences[i])
-    return total_cost / n_sequences
+        Returns:
+            float: average cost
+        """
+        total_cost = 0
+        n_sequences = self.sequences.shape[0]
+        for i in range(n_sequences):
+            total_cost += self.dtw_cost(current_mean, self.sequences[i])
+        return total_cost / n_sequences
