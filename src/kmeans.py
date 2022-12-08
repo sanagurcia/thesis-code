@@ -11,7 +11,7 @@ Functions:
 
 import numpy as np
 from .fast_dtw import dtw_cost
-from .dba import dba_mean
+from .dba import DBA
 
 DBA_ITERATIONS = 3
 COL = "\033[96m"
@@ -120,7 +120,8 @@ def k_means_iteration(centroids: np.ndarray, S: np.ndarray, verbose=False) -> ([
             S_i[l] = S[s_j]
 
         # get updated sample mean of cluster_i
-        centroids_update[i] = dba_mean(S_i, DBA_ITERATIONS)
+        dba = DBA(S_i, "VANILLA")
+        centroids_update[i] = dba.mean()
 
     # return clusters, updated centroids
     return clusters, centroids_update
@@ -132,7 +133,7 @@ def main():
     # i.e. python -m src.kmeans
     from .dataset import Dataset
 
-    ds = Dataset()
+    ds = Dataset("Ham")
     S = ds.train_set
     k = ds.no_clusters
 
