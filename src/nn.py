@@ -1,49 +1,62 @@
-from .fast_dtw import dtw_cost
-from .shapedtw import shapedtw_cost
 import numpy as np
+from .fast_dtw import dtw_cost as vanilla_dtw_cost
+from .shapedtw import shapedtw_cost
+
 
 # type aliases
 IndexList = [int]
 ClusterIndexList = [IndexList]
 
-cost_measure = shapedtw_cost
 
+class NN:
+    cost_measure = vanilla_dtw_cost
+    centroids = [np.ndarray]
+    sequences = np.ndarray
 
-def classify_and_measure_success(centroids: [np.ndarray], S: np.ndarray, given_labels: ClusterIndexList) -> float:
-    """Predict labels via means-based NN & measure success rate compared to given labels."""
-    predicted_labels = nearest_mean_classify(centroids, S)
-    return calculate_success_rate(given_labels, predicted_labels, S.shape[0])
+    def __init__(self, sequences: np.ndarray, centroids: np.ndarray, measure: str):
+        self.sequences = sequences
+        self.centroids = centroids
 
+        if measure == "VANILLA":
+            self.cost_measure = vanilla_dtw_cost
+        elif measure == "SHAPE":
+            self.cost_measure = shapedtw_cost
 
-def nearest_mean_classify(centroids: [np.ndarray], S: np.ndarray) -> ClusterIndexList:
-    """Use nearest neighbor to associate each sequence in test set with closest mean.
-    Complexity: O(n * k * m^2)
+    def classify_and_measure_success(self, given_labels: ClusterIndexList) -> float:
+        """Predict labels via means-based NN & measure success rate compared to given labels."""
 
-    Args:
-        centroids ([np.ndarray]): list of class-mean sequences
-        S (np.ndarray): sequencs to classify
+        predicted_labels = self.nearest_mean_classify()
+        return calculate_success_rate(given_labels, predicted_labels, self.sequences.shape[0])
 
-    Returns:
-        [[int]]: class lists with indices to sequences array
-    """
-    n = S.shape[0]
-    k = len(centroids)
+    def nearest_mean_classify(self) -> ClusterIndexList:
+        """Use nearest neighbor to associate each sequence in test set with closest mean.
+        Complexity: O(n * k * m^2)
 
-    clusters: ClusterIndexList = [[] for j in range(k)]
+        Args:
+            centroids ([np.ndarray]): list of class-mean sequences
+            S (np.ndarray): sequencs to classify
 
-    # assign each sequence to cluster with closest centroid
-    for j in range(n):  # for each sequence,
-        candidate_c = (-1, np.Inf)  # candidate centroid: (index, cost)
+        Returns:
+            [[int]]: class lists with indices to sequences array
+        """
+        n = self.sequences.shape[0]
+        k = len(self.centroids)
 
-        for i in range(k):  # for each centroid
-            cost = cost_measure(centroids[i], S[j])  # compute distance from seq to centroid
+        clusters: ClusterIndexList = [[] for j in range(k)]
 
-            if cost < candidate_c[1]:
-                candidate_c = (i, cost)
+        # assign each sequence to cluster with closest centroid
+        for j in range(n):  # for each sequence,
+            candidate_c = (-1, np.Inf)  # candidate centroid: (index, cost)
 
-        clusters[candidate_c[0]].append(j)  # add index s_j to cluster_i
+            for i in range(k):  # for each centroid
+                cost = self.cost_measure(self.centroids[i], self.sequences[j])  # compute distance from seq to centroid
 
-    return clusters
+                if cost < candidate_c[1]:
+                    candidate_c = (i, cost)
+
+            clusters[candidate_c[0]].append(j)  # add index s_j to cluster_i
+
+        return clusters
 
 
 def calculate_success_rate(given_labels: ClusterIndexList, predicted_labels: ClusterIndexList, n: int) -> float:
@@ -62,24 +75,3 @@ def calculate_success_rate(given_labels: ClusterIndexList, predicted_labels: Clu
 
     wrong_ratio = total_diff / n
     return round(1 - wrong_ratio, 2)
-
-
-if __name__ == "__main__":
-    from src.dataset import Dataset
-    from src import dba
-
-    ds = Dataset()
-
-    # compute cluster means with DBA
-    cluster_means = []
-    for cluster in ds.train_clusters:
-        mean = dba.dba_mean(cluster)
-        cluster_means.append(mean)
-
-    # get TEST classes and classify with nearest neighbor method
-    print(f"Performing mean-based NN on test set of length {ds.test_set_size}...")
-
-    calculated_labels = nearest_mean_classify(cluster_means, ds.test_set)
-
-    success = calculate_success_rate(ds.test_labels, calculated_labels, ds.test_set_size)
-    print(f"Success rate: {success}")
