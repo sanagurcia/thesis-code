@@ -3,8 +3,8 @@ import numpy as np
 from src.fast_dtw import multi_dtw_cost, multi_dtw_path
 from src.fast_dtw import dtw_cost, dtw_path
 
-# descriptors: 'RAW_SUBSEQUENCE', 'DERIVATIVE'
-DESCRIPTOR = "RAW_SUBSEQUENCE"
+# descriptors: 'RAW_SUBSEQUENCE', 'DERIVATIVE', 'PAA', 'SLOPE'
+DESCRIPTOR = "SLOPE"
 L = 30  # see Zhao et al
 
 
@@ -39,6 +39,12 @@ def to_shape_descriptors(seq: np.ndarray) -> np.ndarray:
     if DESCRIPTOR == "DERIVATIVE":
         return derivative_descriptor(seq, L)
 
+    if DESCRIPTOR == "PAA":
+        return paa_descriptor(seq, L, 5)
+
+    if DESCRIPTOR == "SLOPE":
+        return slope_descriptor(seq, L, 5)
+
 
 def derivative_descriptor(seq: np.ndarray, l: int) -> np.ndarray:
     """Return shape descriptors corresponding to DDTW"""
@@ -48,6 +54,56 @@ def derivative_descriptor(seq: np.ndarray, l: int) -> np.ndarray:
     for i in range(subsequences.shape[0]):
         # take difference between each two points in subsequence, average the differences
         descriptors[i] = np.mean(np.diff(subsequences[i]))
+
+    return descriptors
+
+
+def paa_descriptor(seq: np.ndarray, subsequence_length: int, m_intervals: int) -> np.ndarray:
+    """Return piecewise aggregate approximation descriptors.
+    As compared to the raw_subsequence descriptor, here we approximate the subsequence by splitting
+    it up into equal length intervals and reprenting each interval through its mean.
+    Thus, for example, instead of having descriptors of length 30, they're of length 5.
+    """
+
+    assert subsequence_length % m_intervals == 0
+
+    subsequences = sample_subsequences(seq, subsequence_length)
+
+    # Init descriptor target array
+    n_subsequences = subsequences.shape[0]
+    descriptors = np.zeros((n_subsequences, m_intervals), dtype="float32")
+
+    for i in range(n_subsequences):
+        # divide subsequence into m intervals
+        intervals = np.array_split(subsequences[i], m_intervals)
+        # get mean value of each interval; descriptor := vector of interval-means
+        descriptors[i] = np.asarray([np.mean(interval) for interval in intervals])
+
+    return descriptors
+
+
+def slope_descriptor(seq: np.ndarray, subsequence_length: int, m_intervals: int) -> np.ndarray:
+    """Return slope shape descriptors.
+    Divide subsequence into m intervals. Calculate slope of each interval using TLS method
+    with linear polynomial. Each descriptor is thus a vector with m slopes.
+    """
+
+    assert subsequence_length % m_intervals == 0
+
+    subsequences = sample_subsequences(seq, subsequence_length)
+
+    # Init descriptor target array
+    n_subsequences = subsequences.shape[0]
+    interval_length = subsequence_length / m_intervals
+    descriptors = np.zeros((n_subsequences, m_intervals), dtype="float32")
+
+    for i in range(n_subsequences):
+        # divide subsequence into m intervals
+        intervals = np.array_split(subsequences[i], m_intervals)
+
+        # get slope of each interval using TLS, degree 1
+        x_values = np.arange(interval_length)
+        descriptors[i] = np.asarray([np.polyfit(x_values, np.asarray(interval), 1)[0] for interval in intervals])
 
     return descriptors
 
@@ -83,7 +139,7 @@ def pad_ends(seq: np.ndarray, l: int) -> np.ndarray:
 
 
 def main():
-    a = np.arange(2, 12)
+    a = np.arange(60)
     sd = to_shape_descriptors(a)
     print(sd)
 
